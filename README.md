@@ -81,7 +81,7 @@ graph TD
 #### 路由与中间件模块
 
 ```mermaid
-graph TD
+graph LR
     A[客户端请求] --> B[API网关]
     B --> C[FastAPI应用]
     C --> D[中间件链]
@@ -203,7 +203,7 @@ sequenceDiagram
 ### 2. 依赖注入流程
 
 ```mermaid
-graph TD
+graph LR
     A[路由函数] --> B[声明依赖]
     B --> C{依赖已解析?}
     C -->|是| D[使用已解析依赖]
@@ -231,7 +231,7 @@ graph TD
 ### 3. 数据库会话管理流程
 
 ```mermaid
-graph TD
+graph LR
     A[路由函数开始] --> B[调用数据库依赖]
     B --> C[创建数据库会话]
     C --> D[返回会话给路由]
