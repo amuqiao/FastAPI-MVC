@@ -1,4 +1,4 @@
-# FastAPI架构设计项目
+# 如何设计和实现一个生产级FastAPI架构
 
 ## 一、项目概述
 
@@ -158,6 +158,66 @@ graph TD
     style N fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
 ```
 
+#### 多数据库管理模块
+
+```mermaid
+graph TD
+    subgraph 配置层
+        A[环境变量配置] --> B[配置管理模块]
+        B --> C[数据库配置解析]
+    end
+    
+    subgraph 数据库连接层
+        C --> D[数据库管理器]
+        D --> E[MySQL连接管理]
+        D --> F[Oracle连接管理]
+        D --> G[ClickHouse连接管理]
+        D --> H[Redis连接管理]
+    end
+    
+    subgraph 仓储层
+        E --> I[MySQL仓储实现]
+        F --> J[Oracle仓储实现]
+        G --> K[ClickHouse仓储实现]
+        H --> L[Redis缓存实现]
+    end
+    
+    subgraph 服务层
+        I --> M[业务服务层]
+        J --> M
+        K --> M
+        L --> M
+    end
+    
+    subgraph 数据库层
+        E --> N[(MySQL数据库)]
+        F --> O[(Oracle数据库)]
+        G --> P[(ClickHouse数据库)]
+        H --> Q[(Redis缓存)]
+    end
+    
+    M --> R[API路由层]
+    
+    style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+    style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style C fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style D fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style E fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style F fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style G fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style H fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style I fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style J fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style K fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style L fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style M fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style N fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style O fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style P fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style Q fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style R fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+```
+
 ## 三、核心流程
 
 ### 1. 请求处理流程
@@ -259,6 +319,70 @@ graph LR
     style L fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
 ```
 
+### 4. 多数据库连接管理流程
+
+```mermaid
+sequenceDiagram
+    participant App as 应用程序
+    participant DBManager as 数据库管理器
+    participant MySQLConn as MySQL连接
+    participant OracleConn as Oracle连接
+    participant ClickHouseConn as ClickHouse连接
+    participant RedisConn as Redis连接
+    participant MySQL as MySQL数据库
+    participant Oracle as Oracle数据库
+    participant ClickHouse as ClickHouse数据库
+    participant Redis as Redis缓存
+    
+    App->>DBManager: 应用启动
+    DBManager->>MySQLConn: 连接MySQL
+    MySQLConn->>MySQL: 建立连接池
+    MySQL-->>MySQLConn: 连接成功
+    MySQLConn-->>DBManager: MySQL连接成功
+    
+    DBManager->>OracleConn: 连接Oracle
+    OracleConn->>Oracle: 建立连接池
+    Oracle-->>OracleConn: 连接成功
+    OracleConn-->>DBManager: Oracle连接成功
+    
+    DBManager->>ClickHouseConn: 连接ClickHouse
+    ClickHouseConn->>ClickHouse: 建立连接
+    ClickHouse-->>ClickHouseConn: 连接成功
+    ClickHouseConn-->>DBManager: ClickHouse连接成功
+    
+    DBManager->>RedisConn: 连接Redis
+    RedisConn->>Redis: 建立连接
+    Redis-->>RedisConn: 连接成功
+    RedisConn-->>DBManager: Redis连接成功
+    
+    DBManager-->>App: 所有数据库连接成功
+    
+    Note over App,DBManager: 应用运行中...
+    
+    App->>DBManager: 应用关闭
+    DBManager->>MySQLConn: 断开MySQL连接
+    MySQLConn->>MySQL: 关闭连接池
+    MySQL-->>MySQLConn: 连接关闭
+    MySQLConn-->>DBManager: MySQL连接已断开
+    
+    DBManager->>OracleConn: 断开Oracle连接
+    OracleConn->>Oracle: 关闭连接池
+    Oracle-->>OracleConn: 连接关闭
+    OracleConn-->>DBManager: Oracle连接已断开
+    
+    DBManager->>ClickHouseConn: 断开ClickHouse连接
+    ClickHouseConn->>ClickHouse: 关闭连接
+    ClickHouse-->>ClickHouseConn: 连接关闭
+    ClickHouseConn-->>DBManager: ClickHouse连接已断开
+    
+    DBManager->>RedisConn: 断开Redis连接
+    RedisConn->>Redis: 关闭连接
+    Redis-->>RedisConn: 连接关闭
+    RedisConn-->>DBManager: Redis连接已断开
+    
+    DBManager-->>App: 所有数据库连接已断开
+```
+
 ## 四、模块说明
 
 ### 1. 核心模块
@@ -271,6 +395,7 @@ graph LR
 | **配置管理** | 多环境配置 | 类型安全、环境变量支持、配置验证 |
 | **服务层** | 业务逻辑封装 | 事务管理、服务间调用、业务规则 |
 | **仓储层** | 数据访问抽象 | 支持多种数据库、ORM集成、数据持久化 |
+| **多数据库管理** | 管理多种数据库连接 | 支持MySQL、Oracle、ClickHouse、Redis，统一连接管理 |
 | **缓存层** | 缓存管理 | Redis支持、自动缓存、缓存失效机制 |
 | **消息队列** | 异步消息处理 | 事件驱动、消息可靠性、异步任务 |
 
