@@ -173,6 +173,7 @@ graph TD
         D --> F[Oracle连接管理]
         D --> G[ClickHouse连接管理]
         D --> H[Redis连接管理]
+        D --> S[SQLite连接管理] 
     end
     
     subgraph 仓储层
@@ -180,6 +181,7 @@ graph TD
         F --> J[Oracle仓储实现]
         G --> K[ClickHouse仓储实现]
         H --> L[Redis缓存实现]
+        S --> T[SQLite仓储实现] 
     end
     
     subgraph 服务层
@@ -187,6 +189,7 @@ graph TD
         J --> M
         K --> M
         L --> M
+        T --> M 
     end
     
     subgraph 数据库层
@@ -194,10 +197,14 @@ graph TD
         F --> O[(Oracle数据库)]
         G --> P[(ClickHouse数据库)]
         H --> Q[(Redis缓存)]
+        S --> U[(SQLite数据库)] 
     end
     
-    M --> R[API路由层]
+    subgraph API路由层  
+        M --> R[API路由层]
+    end
     
+    %% 样式定义（保持原有风格，无修改）
     style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
     style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
     style C fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
@@ -206,18 +213,20 @@ graph TD
     style F fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
     style G fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
     style H fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style S fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8 
     style I fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style J fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style K fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style L fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style T fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8 
     style M fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
     style N fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
     style O fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
     style P fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
     style Q fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style U fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8 
     style R fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
 ```
-
 ## 三、核心流程
 
 ### 1. 请求处理流程
