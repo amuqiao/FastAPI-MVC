@@ -52,28 +52,28 @@ graph TD
         end
     end
     
-    style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white
-    style C fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white
-    style D fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white
-    style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style E fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white
-    style F fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style G fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style H fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style I fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style J fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style K fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white
-    style L fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white
-    style M fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white
-    style N fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style O fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style P fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style Q fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436
-    style R fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436
-    style S fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436
-    style T fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style U fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white
-    style V fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white
+    style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+    style C fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+    style D fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+    style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style E fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style F fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style G fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style H fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style I fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style J fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style K fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style L fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style M fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style N fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style O fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style P fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style Q fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436,rx:8,ry:8
+    style R fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436,rx:8,ry:8
+    style S fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436,rx:8,ry:8
+    style T fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style U fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style V fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
 ```
 
 ### 2. 分模块架构图
@@ -97,20 +97,20 @@ graph LR
     M --> D
     D --> N[客户端响应]
     
-    style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white
-    style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style C fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white
-    style D fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style E fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style F fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style G fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style H fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style I fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white
-    style J fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style K fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style L fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white
-    style M fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style N fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white
+    style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+    style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style C fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style D fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style E fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style F fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style G fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style H fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style I fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style J fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style K fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style L fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style M fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style N fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
 ```
 
 #### 服务与仓储模块
@@ -142,20 +142,20 @@ graph TD
         M --> N[异步处理]
     end
     
-    style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white
-    style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style C fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white
-    style D fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style E fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style F fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white
-    style G fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style H fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style I fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style J fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white
-    style K fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style L fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style M fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436
-    style N fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white
+    style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+    style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style C fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style D fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style E fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style F fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style G fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style H fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style I fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style J fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style K fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style L fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style M fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436,rx:8,ry:8
+    style N fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
 ```
 
 ## 三、核心流程
@@ -216,16 +216,16 @@ graph LR
     I --> D
     D --> J[执行路由逻辑]
     
-    style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white
-    style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style C fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white
-    style D fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style E fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style F fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white
-    style G fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style H fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style I fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436
-    style J fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white
+    style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+    style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style C fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style D fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style E fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style F fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style G fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style H fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style I fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436,rx:8,ry:8
+    style J fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
 ```
 
 ### 3. 数据库会话管理流程
@@ -245,18 +245,18 @@ graph LR
     J --> K
     K --> L[路由函数结束]
     
-    style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white
-    style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style C fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white
-    style D fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style E fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style F fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white
-    style G fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style H fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style I fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
-    style J fill:#FF6B6B,stroke:#2D3436,stroke-width:2px,color:white
-    style K fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436
-    style L fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white
+    style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+    style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style C fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style D fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style E fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style F fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style G fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style H fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style I fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style J fill:#FF6B6B,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style K fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436,rx:8,ry:8
+    style L fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
 ```
 
 ## 四、模块说明
