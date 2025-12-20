@@ -1,5 +1,135 @@
 # FastAPI企业家架构 - 配置模块设计
 
+## 一、核心流程图
+### 1. 配置加载核心流程
+
+```mermaid
+flowchart LR
+    %% 初始化阶段
+    subgraph 初始化阶段
+        A["创建配置类实例<br/>如AppSettings()"]:::primary 
+        A --> B["触发配置加载流程"]:::secondary
+    end
+    
+    %% 配置加载阶段
+    subgraph 配置加载阶段
+        B --> C["加载操作系统环境变量"]:::tertiary
+        C --> D["加载指定.env文件<br/>(.env/.env.test/.env.prod)"]:::quaternary
+        D --> E["合并配置源<br/>环境变量覆盖.env文件值"]:::quinary
+    end
+    
+    %% 验证与返回阶段
+    subgraph 验证与返回阶段
+        E --> F["Pydantic配置验证<br/>类型检查/值校验"]:::senary
+        F --> G{"验证通过?"}:::septenary
+        G -- 是 --> H["返回初始化配置实例"]:::octonary
+        G -- 否 --> I["抛出配置验证异常"]:::primary
+    end
+    
+    %% 样式定义（仅保留Mermaid 100%兼容属性）
+    classDef primary fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+    classDef secondary fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef tertiary fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    classDef quaternary fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef quinary fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef senary fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    classDef septenary fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef octonary fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436,rx:8,ry:8
+```
+
+### 2. 配置依赖注入使用流程
+
+```mermaid
+flowchart LR 
+    subgraph "应用初始化"
+        A["FastAPI应用启动"]:::primary --> B["定义配置依赖函数<br/>如get_app_settings()"]:::secondary
+        B --> C["注册配置依赖容器<br/>ConfigDeps/deps实例"]:::tertiary
+    end
+
+    subgraph "请求处理流程"
+        D["客户端发起接口请求"]:::quaternary --> E["FastAPI路由匹配"]:::quinary
+        E --> F["触发依赖注入系统"]:::senary
+        F --> G["执行依赖函数<br/>获取配置实例"]:::septenary
+        G --> H["注入配置到接口/服务"]:::octonary
+    end
+
+    subgraph "业务逻辑层"
+        H --> I["接口处理函数使用配置<br/>如app_config.APP_NAME"]:::secondary
+        I --> J["服务层使用配置<br/>如security_config.JWT_SECRET_KEY"]:::tertiary
+        J --> K["数据库层使用配置<br/>如mysql_config.URL"]:::quaternary
+        K --> L["返回处理结果给客户端"]:::primary
+    end
+
+    %% 样式定义
+    classDef primary fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+    classDef secondary fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef tertiary fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    classDef quaternary fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef quinary fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef senary fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    classDef septenary fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef octonary fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436,rx:8,ry:8
+
+    %% 连接线样式
+    linkStyle 0 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 1 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 2 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 3 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 4 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 5 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 6 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 7 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 8 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 9 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+
+```
+
+### 3. 多环境配置加载优先级流程
+
+```mermaid
+flowchart LR
+    subgraph "配置源优先级层级"
+        A["操作系统环境变量<br/>(最高优先级)"]:::primary --> B["覆盖下层所有配置值"]:::secondary
+        C[".env文件<br/>(按指定环境加载)"]:::tertiary --> D["覆盖默认配置值"]:::quaternary
+        E["代码默认配置值<br/>(最低优先级)"]:::quinary --> F["兜底配置"]:::senary
+    end
+
+    subgraph "多环境文件加载逻辑"
+        G["指定环境文件?<br/>如from_env('.env.prod')"]:::septenary --> H{"是"}:::octonary
+        H -- 是 --> I["加载指定.env文件<br/>.env.prod/.env.test"]:::primary
+        H -- 否 --> J["加载默认.env文件"]:::secondary
+        I & J --> K["合并环境变量后验证"]:::tertiary
+    end
+
+    subgraph "最终配置生成"
+        K --> L["环境变量 > 指定.env > 默认.env > 默认值"]:::quaternary
+        L --> M["生成最终有效配置"]:::quinary
+    end
+
+    %% 样式定义
+    classDef primary fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
+    classDef secondary fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef tertiary fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    classDef quaternary fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef quinary fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef senary fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    classDef septenary fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    classDef octonary fill:#E9ECEF,stroke:#2D3436,stroke-width:3px,color:#2D3436,rx:8,ry:8
+
+    %% 连接线样式
+    linkStyle 0 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 1 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 2 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 3 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 4 stroke:#FF6B6B,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 5 stroke:#4ECDC4,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 6 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 7 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 8 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+    linkStyle 9 stroke:#2D3436,stroke-width:2px,arrowheadStyle:filled
+
+```
+
 ## 文档目的
 
 本文档详细介绍了FastAPI企业家架构中的配置模块设计，旨在为开发人员提供清晰的配置管理指南，包括配置加载方式、环境变量使用、.env配置文件管理、默认配置设置、配置加载优先级以及配置生效条件等核心内容。
@@ -15,7 +145,7 @@
 - **最佳实践**：遵循配置管理的推荐做法
 - **扩展功能**：了解配置模块的扩展能力和高级特性
 
-## 一、设计概述
+## 二、设计概述
 
 本设计实现了一套**生产级的配置管理模块**，基于FastAPI框架和pydantic-settings库，用于加载和管理.env环境变量、数据库配置以及应用配置。该设计遵循**单一职责原则**、**依赖倒置原则**和**开闭原则**，具有良好的可扩展性、可维护性和类型安全性。
 
@@ -28,7 +158,7 @@
 - **类型安全**：所有配置项都有明确的类型定义和验证
 - **灵活扩展**：支持动态添加新的配置项和配置源
 
-## 二、目录结构设计
+## 三、目录结构设计
 
 ```
 fastapi_entrepreneur/
@@ -50,7 +180,7 @@ fastapi_entrepreneur/
 └── README.md                # 项目说明文档
 ```
 
-## 三、配置模块核心实现
+## 四、配置模块核心实现
 
 ### 1. 配置基类设计
 
@@ -296,7 +426,7 @@ class SecurityConfig(BaseSettings):
 security_config = SecurityConfig()
 ```
 
-## 四、配置依赖注入实现
+## 五、配置依赖注入实现
 
 ### 1. 配置导出和依赖注入
 
@@ -406,7 +536,7 @@ __all__ = [
 deps = ConfigDeps()
 ```
 
-## 五、环境变量配置示例
+## 六、环境变量配置示例
 
 环境变量是配置管理的核心，本模块支持通过环境变量和.env文件灵活配置应用。
 
@@ -524,7 +654,7 @@ prod_settings = AppSettings.from_env(".env.prod")
 print(prod_settings.ENVIRONMENT)  # 输出: production
 ```
 
-## 六、配置使用示例
+## 七、配置使用示例
 
 ### 1. 在应用入口使用配置
 
@@ -645,7 +775,7 @@ def get_db():
         db.close()
 ```
 
-## 七、配置管理最佳实践
+## 八、配置管理最佳实践
 
 ### 1. 配置命名规范
 
@@ -680,7 +810,7 @@ def get_db():
 - **配置隔离**：不同模块只获取所需的配置，避免过度依赖
 - **测试友好**：支持在测试中轻松替换配置
 
-## 八、扩展功能设计
+## 九、扩展功能设计
 
 ### 1. 支持多种配置源
 
@@ -805,7 +935,7 @@ class ConfigMonitor:
         return changes
 ```
 
-## 九、总结
+## 十、总结
 
 本设计实现了一套**生产级的配置管理模块**，基于FastAPI和pydantic-settings，具有以下优势：
 
