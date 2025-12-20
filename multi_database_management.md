@@ -1,6 +1,10 @@
 # 多数据库管理与配置设计
 
-## 一、关键流程流程图
+## 一、设计概述
+
+本设计实现了一套**生产级的多数据库管理架构**，支持MySQL、Oracle、ClickHouse、SQLite和Redis等多种数据库类型。通过**统一的配置管理**、**标准化的连接接口**和**灵活的依赖注入机制**，实现了业务层与数据访问层的解耦，符合开闭原则、单一职责原则和依赖倒置原则，具备良好的可扩展性和可维护性。
+
+## 二、关键流程流程图
 
 ### 1. 多数据库架构整体架构图
 
@@ -236,7 +240,7 @@ flowchart LR
     style O fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436
 ```
 
-## 二、目录结构设计
+## 三、目录结构设计
 
 ```
 fastapi_mvc/
@@ -244,49 +248,47 @@ fastapi_mvc/
 │   ├── __init__.py
 │   ├── main.py              # 应用入口
 │   ├── config/              # 配置模块
-│   │   ├── __init__.py
+│   │   ├── __init__.py      # 配置注入导出
 │   │   ├── settings.py      # 主配置文件
 │   │   ├── database.py      # 数据库配置
 │   │   └── redis.py         # Redis配置
 │   ├── databases/           # 多数据库管理模块
-│   │   ├── __init__.py
+│   │   ├── __init__.py      # 数据库连接导出和依赖注入
 │   │   ├── base.py          # 数据库基类和通用工具
 │   │   ├── mysql/           # MySQL数据库模块
 │   │   │   ├── __init__.py
 │   │   │   ├── connection.py # MySQL连接管理
-│   │   │   ├── session.py    # MySQL会话管理
 │   │   │   └── base.py       # MySQL模型基类
 │   │   ├── oracle/          # Oracle数据库模块
 │   │   │   ├── __init__.py
-│   │   │   ├── connection.py # Oracle连接管理
-│   │   │   └── session.py    # Oracle会话管理
+│   │   │   └── connection.py # Oracle连接管理
 │   │   ├── clickhouse/      # ClickHouse数据库模块
 │   │   │   ├── __init__.py
-│   │   │   ├── connection.py # ClickHouse连接管理
-│   │   │   └── session.py    # ClickHouse会话管理
+│   │   │   └── connection.py # ClickHouse连接管理
 │   │   ├── sqlite/          # SQLite数据库模块
 │   │   │   ├── __init__.py
-│   │   │   ├── connection.py # SQLite连接管理
-│   │   │   └── base.py       # SQLite模型基类
+│   │   │   └── connection.py # SQLite连接管理
 │   │   └── redis/           # Redis缓存模块
-│   │       ├── __init__.py
+│   │       ├── __init__.py  # Redis接口统一导出
+│   │       ├── base.py       # Redis基础接口
 │   │       ├── client.py     # Redis客户端封装
 │   │       └── cache.py      # 缓存工具类
 │   ├── repositories/        # 仓储层（按业务域和数据库类型划分）
+│   │   ├── __init__.py      # 仓储依赖注入
 │   │   ├── mysql/           # MySQL仓储实现
 │   │   │   ├── user_repository.py
 │   │   │   └── order_repository.py
 │   │   ├── clickhouse/      # ClickHouse仓储实现
 │   │   │   └── analytics_repository.py
-│   │   └── sqlite/          # SQLite仓储实现
-│   │       └── test_repository.py
+│   │   └── redis/           # Redis仓储实现
+│   │       └── cache_repository.py
 │   └── ...                  # 其他模块
 ├── .env                     # 开发环境变量
 ├── .env.prod                # 生产环境变量
 └── .env.test                # 测试环境变量
 ```
 
-## 三、配置管理设计
+## 四、配置管理设计
 
 ### 1. 主配置文件
 
@@ -423,7 +425,7 @@ class RedisConfig(BaseSettings):
 redis_config = RedisConfig()
 ```
 
-## 四、多数据库连接管理
+## 五、多数据库连接管理
 
 ### 1. 数据库基类
 
@@ -692,15 +694,79 @@ clickhouse_connection = ClickHouseConnection()
 
 ### 5. Redis连接管理
 
+#### 5.1 Redis基础接口
+
+```python
+# app/databases/redis/base.py
+from abc import ABC, abstractmethod
+from typing import Any, Optional, Dict, List
+
+class RedisInterface(ABC):
+    """Redis基础接口，统一Redis操作方法"""
+    
+    @abstractmethod
+    def get(self, key: str) -> Optional[str]:
+        """获取缓存值"""
+        pass
+    
+    @abstractmethod
+    def set(self, key: str, value: Any, expire: int = 3600) -> bool:
+        """设置缓存值"""
+        pass
+    
+    @abstractmethod
+    def delete(self, key: str) -> bool:
+        """删除缓存"""
+        pass
+    
+    @abstractmethod
+    def hash_set(self, name: str, key: str, value: Any) -> bool:
+        """设置哈希值"""
+        pass
+    
+    @abstractmethod
+    def hash_get(self, name: str, key: str) -> Optional[str]:
+        """获取哈希值"""
+        pass
+    
+    @abstractmethod
+    def hash_getall(self, name: str) -> Dict[str, str]:
+        """获取所有哈希值"""
+        pass
+    
+    @abstractmethod
+    def list_push(self, name: str, *values: Any) -> int:
+        """列表右侧推入"""
+        pass
+    
+    @abstractmethod
+    def list_pop(self, name: str) -> Optional[str]:
+        """列表右侧弹出"""
+        pass
+    
+    @abstractmethod
+    def publish(self, channel: str, message: str) -> int:
+        """发布消息"""
+        pass
+    
+    @abstractmethod
+    def subscribe(self, channel: str):
+        """订阅频道"""
+        pass
+```
+
+#### 5.2 Redis客户端实现
+
 ```python
 # app/databases/redis/client.py
 import redis
 from app.config.redis import redis_config
 from app.logger.config import logger
-from typing import Any, Optional
+from app.databases.redis.base import RedisInterface
+from typing import Any, Optional, Dict, List
 
-class RedisClient:
-    """Redis客户端封装"""
+class RedisClient(RedisInterface):
+    """Redis客户端封装，实现统一接口"""
     
     def __init__(self):
         self._client = None
@@ -748,9 +814,89 @@ class RedisClient:
     def delete(self, key: str) -> bool:
         """删除缓存"""
         return bool(self.client.delete(self.get_key(key)))
+    
+    def hash_set(self, name: str, key: str, value: Any) -> bool:
+        """设置哈希值"""
+        return self.client.hset(self.get_key(name), key, value)
+    
+    def hash_get(self, name: str, key: str) -> Optional[str]:
+        """获取哈希值"""
+        return self.client.hget(self.get_key(name), key)
+    
+    def hash_getall(self, name: str) -> Dict[str, str]:
+        """获取所有哈希值"""
+        return self.client.hgetall(self.get_key(name))
+    
+    def list_push(self, name: str, *values: Any) -> int:
+        """列表右侧推入"""
+        return self.client.rpush(self.get_key(name), *values)
+    
+    def list_pop(self, name: str) -> Optional[str]:
+        """列表右侧弹出"""
+        return self.client.rpop(self.get_key(name))
+    
+    def publish(self, channel: str, message: str) -> int:
+        """发布消息"""
+        return self.client.publish(self.get_key(channel), message)
+    
+    def subscribe(self, channel: str):
+        """订阅频道"""
+        return self.client.subscribe(self.get_key(channel))
 
 # Redis客户端实例
 redis_client = RedisClient()
+```
+
+#### 5.3 Redis缓存工具类
+
+```python
+# app/databases/redis/cache.py
+from typing import Any, Optional, TypeVar, Generic
+from app.databases.redis.client import redis_client
+import json
+
+T = TypeVar('T')
+
+class RedisCache(Generic[T]):
+    """Redis缓存工具类，提供类型安全的缓存操作"""
+    
+    def __init__(self, prefix: str = "cache", expire: int = 3600):
+        self._prefix = prefix
+        self._expire = expire
+    
+    def _get_full_key(self, key: str) -> str:
+        """获取完整键名"""
+        return f"{self._prefix}:{key}"
+    
+    def get(self, key: str) -> Optional[T]:
+        """获取缓存，自动反序列化"""
+        value = redis_client.get(self._get_full_key(key))
+        if value:
+            return json.loads(value)
+        return None
+    
+    def set(self, key: str, value: T, expire: Optional[int] = None) -> bool:
+        """设置缓存，自动序列化"""
+        expire_time = expire or self._expire
+        return redis_client.set(
+            self._get_full_key(key),
+            json.dumps(value),
+            expire=expire_time
+        )
+    
+    def delete(self, key: str) -> bool:
+        """删除缓存"""
+        return redis_client.delete(self._get_full_key(key))
+    
+    def clear(self, pattern: str) -> int:
+        """清除匹配模式的缓存"""
+        keys = redis_client.client.keys(self._get_full_key(pattern))
+        if keys:
+            return redis_client.client.delete(*keys)
+        return 0
+
+# 全局缓存实例
+cache = RedisCache()
 ```
 
 ### 6. SQLite连接管理
@@ -820,10 +966,13 @@ class SQLiteConnection(DatabaseConnection):
 sqlite_connection = SQLiteConnection()
 ```
 
-## 五、数据库注册与初始化
+## 六、数据库注册与初始化
+
+### 1. 数据库连接导出与依赖注入
 
 ```python
 # app/databases/__init__.py
+from fastapi import Depends
 from app.databases.base import database_manager
 from app.databases.mysql.connection import mysql_connection
 from app.databases.oracle.connection import oracle_connection
@@ -837,51 +986,180 @@ database_manager.register("oracle", oracle_connection)
 database_manager.register("clickhouse", clickhouse_connection)
 database_manager.register("sqlite", sqlite_connection)
 
-# 导出数据库连接
-export mysql = mysql_connection
-export oracle = oracle_connection
-export clickhouse = clickhouse_connection
-export sqlite = sqlite_connection
-export redis = redis_client
+# 导出数据库连接实例
+mysql = mysql_connection
+oracle = oracle_connection
+clickhouse = clickhouse_connection
+sqlite = sqlite_connection
+redis = redis_client
+
+# 依赖注入函数 - 用于FastAPI Depends
+def get_mysql_db():
+    """MySQL数据库会话依赖注入"""
+    yield from mysql_connection.get_session()
+
+def get_oracle_db():
+    """Oracle数据库会话依赖注入"""
+    yield from oracle_connection.get_session()
+
+def get_clickhouse_db():
+    """ClickHouse数据库会话依赖注入"""
+    yield from clickhouse_connection.get_session()
+
+def get_sqlite_db():
+    """SQLite数据库会话依赖注入"""
+    yield from sqlite_connection.get_session()
+
+def get_redis():
+    """Redis客户端依赖注入"""
+    return redis_client
+
+# 多数据库依赖注入容器
+class DatabaseDeps:
+    """数据库依赖注入容器，提供统一的依赖注入接口"""
+    
+    @staticmethod
+    def mysql():
+        return Depends(get_mysql_db)
+    
+    @staticmethod
+    def oracle():
+        return Depends(get_oracle_db)
+    
+    @staticmethod
+    def clickhouse():
+        return Depends(get_clickhouse_db)
+    
+    @staticmethod
+    def sqlite():
+        return Depends(get_sqlite_db)
+    
+    @staticmethod
+    def redis():
+        return Depends(get_redis)
+
+# 导出依赖注入容器
+deps = DatabaseDeps()
 ```
+
+### 2. 应用初始化与配置注入
 
 ```python
 # app/main.py
 from fastapi import FastAPI
 from app.databases import database_manager
 from app.logger.config import logger
+from app.config.settings import settings
 
-app = FastAPI(title="FastAPI MVC", version="1.0.0")
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    debug=settings.DEBUG
+)
 
 @app.on_event("startup")
 async def startup_event():
-    """应用启动事件"""
-    logger.info("应用启动，正在连接数据库...")
+    """应用启动事件 - 初始化数据库连接"""
+    logger.info(f"应用启动: {settings.APP_NAME} v{settings.APP_VERSION}")
+    logger.info("正在连接所有数据库...")
     database_manager.connect_all()
+    logger.info("所有数据库连接成功")
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """应用关闭事件"""
+    """应用关闭事件 - 断开数据库连接"""
     logger.info("应用关闭，正在断开数据库连接...")
     database_manager.disconnect_all()
+    logger.info("所有数据库连接已断开")
 ```
 
-## 六、仓储层实现示例
+### 3. 配置注入实现
 
-### 1. MySQL仓储示例
+```python
+# app/config/__init__.py
+from app.config.settings import settings
+from app.config.database import (
+    mysql_config,
+    oracle_config,
+    clickhouse_config,
+    sqlite_config
+)
+from app.config.redis import redis_config
+
+# 配置注入容器
+class ConfigDeps:
+    """配置依赖注入容器，提供统一的配置访问接口"""
+    
+    @staticmethod
+    def app():
+        """获取应用配置"""
+        return settings
+    
+    @staticmethod
+    def mysql():
+        """获取MySQL配置"""
+        return mysql_config
+    
+    @staticmethod
+    def oracle():
+        """获取Oracle配置"""
+        return oracle_config
+    
+    @staticmethod
+    def clickhouse():
+        """获取ClickHouse配置"""
+        return clickhouse_config
+    
+    @staticmethod
+    def sqlite():
+        """获取SQLite配置"""
+        return sqlite_config
+    
+    @staticmethod
+    def redis():
+        """获取Redis配置"""
+        return redis_config
+
+# 导出配置注入容器
+config_deps = ConfigDeps()
+```
+
+## 七、仓储层实现示例
+
+### 1. 仓储基类与依赖注入
+
+```python
+# app/repositories/base.py
+from abc import ABC, abstractmethod
+
+class BaseRepository(ABC):
+    """仓储基类，定义仓储层通用接口"""
+    
+    @abstractmethod
+    def get(self, id: int):
+        """根据ID获取实体"""
+        pass
+    
+    @abstractmethod
+    def get_multi(self, skip: int = 0, limit: int = 100):
+        """获取实体列表"""
+        pass
+```
+
+### 2. MySQL仓储示例（使用依赖注入）
 
 ```python
 # app/repositories/mysql/user_repository.py
 from sqlalchemy.orm import Session
 from typing import Optional, List
-from app.databases.mysql.connection import mysql_connection
+from app.repositories.base import BaseRepository
 from app.models.mysql.user import User
 from app.schemas.v1.user import UserCreate, UserUpdate
 
-class UserRepository:
+class UserRepository(BaseRepository):
     """用户仓储（MySQL）"""
     
-    def __init__(self, db: Optional[Session] = None):
+    def __init__(self, db: Session):
         self.db = db
     
     def get(self, user_id: int) -> Optional[User]:
@@ -904,36 +1182,98 @@ class UserRepository:
         self.db.refresh(db_user)
         return db_user
     
-    def update(self, db_user: User, user_in: UserUpdate) -> User:
+    def update(self, user_id: int, user_in: UserUpdate) -> Optional[User]:
         """更新用户"""
-        update_data = user_in.dict(exclude_unset=True)
-        for field, value in update_data.items():
-            setattr(db_user, field, value)
-        self.db.add(db_user)
-        self.db.commit()
-        self.db.refresh(db_user)
+        db_user = self.get(user_id)
+        if db_user:
+            update_data = user_in.dict(exclude_unset=True)
+            for field, value in update_data.items():
+                setattr(db_user, field, value)
+            self.db.add(db_user)
+            self.db.commit()
+            self.db.refresh(db_user)
         return db_user
     
-    def delete(self, user_id: int) -> User:
+    def delete(self, user_id: int) -> Optional[User]:
         """删除用户"""
-        user = self.db.query(User).get(user_id)
-        self.db.delete(user)
-        self.db.commit()
-        return user
+        db_user = self.get(user_id)
+        if db_user:
+            self.db.delete(db_user)
+            self.db.commit()
+        return db_user
 ```
 
-### 2. ClickHouse仓储示例
+### 3. Redis仓储示例（使用统一接口）
+
+```python
+# app/repositories/redis/cache_repository.py
+from typing import Optional, Dict, Any
+from app.repositories.base import BaseRepository
+from app.databases.redis.client import RedisInterface
+
+class CacheRepository:
+    """缓存仓储（Redis）"""
+    
+    def __init__(self, redis_client: RedisInterface):
+        self._redis = redis_client
+    
+    def get(self, key: str) -> Optional[Any]:
+        """根据键获取缓存"""
+        return self._redis.get(key)
+    
+    def set(self, key: str, value: Any, expire: int = 3600) -> bool:
+        """设置缓存"""
+        return self._redis.set(key, value, expire=expire)
+    
+    def delete(self, key: str) -> bool:
+        """删除缓存"""
+        return self._redis.delete(key)
+    
+    def get_user_cache(self, user_id: int) -> Optional[Dict[str, Any]]:
+        """获取用户缓存"""
+        return self._redis.hash_getall(f"user:{user_id}")
+    
+    def set_user_cache(self, user_id: int, user_data: Dict[str, Any], expire: int = 3600) -> bool:
+        """设置用户缓存"""
+        # 先删除旧缓存
+        self._redis.delete(f"user:{user_id}")
+        # 设置新缓存
+        for key, value in user_data.items():
+            self._redis.hash_set(f"user:{user_id}", key, value)
+        # 设置过期时间
+        return self._redis.set(f"user:{user_id}:expire", "1", expire=expire)
+```
+
+### 4. ClickHouse仓储示例
 
 ```python
 # app/repositories/clickhouse/analytics_repository.py
 from typing import List, Dict, Any
+from app.repositories.base import BaseRepository
 from app.databases.clickhouse.connection import clickhouse_connection
 
-class AnalyticsRepository:
+class AnalyticsRepository(BaseRepository):
     """数据分析仓储（ClickHouse）"""
     
     def __init__(self):
         self._client = clickhouse_connection.client
+    
+    def get(self, id: int) -> Optional[Dict[str, Any]]:
+        """根据ID获取分析数据"""
+        query = f"SELECT * FROM analytics WHERE id = {id}"
+        result = self._client.execute(query, with_column_types=True)
+        if result and len(result[0]) > 0:
+            return dict(zip([col[0] for col in result[1]], result[0][0]))
+        return None
+    
+    def get_multi(self, skip: int = 0, limit: int = 100) -> List[Dict[str, Any]]:
+        """获取分析数据列表"""
+        query = f"SELECT * FROM analytics LIMIT {limit} OFFSET {skip}"
+        result = self._client.execute(query, with_column_types=True)
+        if result:
+            columns = [col[0] for col in result[1]]
+            return [dict(zip(columns, row)) for row in result[0]]
+        return []
     
     def get_user_activity(self, start_date: str, end_date: str) -> List[Dict[str, Any]]:
         """获取用户活动数据"""
@@ -947,7 +1287,11 @@ class AnalyticsRepository:
         GROUP BY user_id, event_date
         ORDER BY event_date DESC
         """
-        return self._client.execute(query, with_column_types=True)
+        result = self._client.execute(query, with_column_types=True)
+        if result:
+            columns = [col[0] for col in result[1]]
+            return [dict(zip(columns, row)) for row in result[0]]
+        return []
     
     def insert_user_event(self, user_id: int, event_type: str, event_data: Dict[str, Any]) -> None:
         """插入用户事件"""
@@ -962,14 +1306,47 @@ class AnalyticsRepository:
         })
 ```
 
-## 七、服务层使用示例
+### 5. 仓储依赖注入容器
+
+```python
+# app/repositories/__init__.py
+from fastapi import Depends
+from app.repositories.mysql.user_repository import UserRepository
+from app.repositories.redis.cache_repository import CacheRepository
+from app.repositories.clickhouse.analytics_repository import AnalyticsRepository
+from app.databases import deps
+
+# 仓储依赖注入容器
+class RepositoryDeps:
+    """仓储依赖注入容器，提供统一的仓储依赖注入接口"""
+    
+    @staticmethod
+    def user_repository():
+        """用户仓储依赖注入"""
+        return Depends(lambda db=deps.mysql(): UserRepository(db))
+    
+    @staticmethod
+    def cache_repository():
+        """缓存仓储依赖注入"""
+        return Depends(lambda redis=deps.redis(): CacheRepository(redis))
+    
+    @staticmethod
+    def analytics_repository():
+        """数据分析仓储依赖注入"""
+        return Depends(AnalyticsRepository)
+
+# 导出仓储依赖注入容器
+repo_deps = RepositoryDeps()
+```
+
+## 八、服务层使用示例
+
+### 1. 单数据库服务示例
 
 ```python
 # app/services/v1/user_service.py
 from typing import List, Optional
-from fastapi import Depends
-from sqlalchemy.orm import Session
-from app.databases.mysql.connection import mysql_connection
+from app.repositories import repo_deps
 from app.repositories.mysql.user_repository import UserRepository
 from app.schemas.v1.user import UserCreate, UserUpdate, UserResponse
 from app.exceptions.custom_exc import ResourceNotFound
@@ -977,8 +1354,8 @@ from app.exceptions.custom_exc import ResourceNotFound
 class UserServiceV1:
     """V1版本用户业务服务"""
     
-    def __init__(self, db: Session = Depends(mysql_connection.get_session)):
-        self.user_repo = UserRepository(db)
+    def __init__(self, user_repo: UserRepository = repo_deps.user_repository()):
+        self.user_repo = user_repo
     
     def create_user(self, user_in: UserCreate) -> UserResponse:
         """创建用户"""
@@ -1003,24 +1380,149 @@ class UserServiceV1:
     
     def update_user(self, user_id: int, user_in: UserUpdate) -> UserResponse:
         """更新用户"""
-        user = self.user_repo.get(user_id)
+        user = self.user_repo.update(user_id, user_in)
         if not user:
             raise ResourceNotFound(detail=f"用户ID {user_id} 不存在")
-        
-        user = self.user_repo.update(user, user_in)
         return UserResponse.from_orm(user)
     
     def delete_user(self, user_id: int) -> UserResponse:
         """删除用户"""
-        user = self.user_repo.get(user_id)
+        user = self.user_repo.delete(user_id)
         if not user:
             raise ResourceNotFound(detail=f"用户ID {user_id} 不存在")
-        
-        user = self.user_repo.delete(user_id)
         return UserResponse.from_orm(user)
 ```
 
-## 八、环境变量配置示例
+### 2. 多数据库服务示例
+
+```python
+# app/services/v1/analytics_service.py
+from typing import List, Dict, Any
+from app.repositories import repo_deps
+from app.repositories.mysql.user_repository import UserRepository
+from app.repositories.clickhouse.analytics_repository import AnalyticsRepository
+from app.repositories.redis.cache_repository import CacheRepository
+from app.schemas.v1.analytics import UserActivityResponse
+
+class AnalyticsServiceV1:
+    """V1版本数据分析服务 - 演示多数据库协同使用"""
+    
+    def __init__(
+        self,
+        user_repo: UserRepository = repo_deps.user_repository(),
+        analytics_repo: AnalyticsRepository = repo_deps.analytics_repository(),
+        cache_repo: CacheRepository = repo_deps.cache_repository()
+    ):
+        self.user_repo = user_repo
+        self.analytics_repo = analytics_repo
+        self.cache_repo = cache_repo
+    
+    def get_user_activity(
+        self, user_id: int, start_date: str, end_date: str
+    ) -> List[UserActivityResponse]:
+        """获取用户活动数据 - 结合MySQL、ClickHouse和Redis"""
+        
+        # 1. 从Redis缓存获取数据
+        cache_key = f"user_activity:{user_id}:{start_date}:{end_date}"
+        cached_data = self.cache_repo.get(cache_key)
+        
+        if cached_data:
+            return [UserActivityResponse(**item) for item in cached_data]
+        
+        # 2. 验证用户是否存在（MySQL）
+        user = self.user_repo.get(user_id)
+        if not user:
+            raise ValueError(f"用户ID {user_id} 不存在")
+        
+        # 3. 从ClickHouse获取活动数据
+        activity_data = self.analytics_repo.get_user_activity(start_date, end_date)
+        
+        # 4. 过滤当前用户的数据
+        user_activity = [
+            item for item in activity_data if item['user_id'] == user_id
+        ]
+        
+        # 5. 转换为响应模型
+        responses = [UserActivityResponse(**item) for item in user_activity]
+        
+        # 6. 缓存结果（Redis）
+        self.cache_repo.set(cache_key, [resp.dict() for resp in responses], expire=3600)
+        
+        return responses
+    
+    def track_user_event(
+        self, user_id: int, event_type: str, event_data: Dict[str, Any]
+    ) -> None:
+        """追踪用户事件 - 写入ClickHouse并更新缓存"""
+        
+        # 1. 验证用户是否存在（MySQL）
+        user = self.user_repo.get(user_id)
+        if not user:
+            raise ValueError(f"用户ID {user_id} 不存在")
+        
+        # 2. 写入ClickHouse
+        self.analytics_repo.insert_user_event(user_id, event_type, event_data)
+        
+        # 3. 清除相关缓存
+        cache_pattern = f"user_activity:{user_id}:*"
+        self.cache_repo.delete(cache_pattern)
+```
+
+### 3. API层使用示例
+
+```python
+# app/api/v1/user_router.py
+from fastapi import APIRouter, HTTPException
+from typing import List
+from app.services.v1.user_service import UserServiceV1
+from app.schemas.v1.user import UserCreate, UserUpdate, UserResponse
+
+router = APIRouter(prefix="/v1/users", tags=["users"])
+
+@router.post("/", response_model=UserResponse, status_code=201)
+def create_user(
+    user_in: UserCreate,
+    user_service: UserServiceV1 = UserServiceV1()
+):
+    """创建新用户"""
+    return user_service.create_user(user_in)
+
+@router.get("/{user_id}", response_model=UserResponse)
+def get_user(
+    user_id: int,
+    user_service: UserServiceV1 = UserServiceV1()
+):
+    """获取用户详情"""
+    return user_service.get_user(user_id)
+
+@router.get("/", response_model=List[UserResponse])
+def get_users(
+    skip: int = 0,
+    limit: int = 100,
+    user_service: UserServiceV1 = UserServiceV1()
+):
+    """获取用户列表"""
+    return user_service.get_user_list(skip=skip, limit=limit)
+
+@router.put("/{user_id}", response_model=UserResponse)
+def update_user(
+    user_id: int,
+    user_in: UserUpdate,
+    user_service: UserServiceV1 = UserServiceV1()
+):
+    """更新用户信息"""
+    return user_service.update_user(user_id, user_in)
+
+@router.delete("/{user_id}", response_model=UserResponse)
+def delete_user(
+    user_id: int,
+    user_service: UserServiceV1 = UserServiceV1()
+):
+    """删除用户"""
+    return user_service.delete_user(user_id)
+```
+
+## 九、环境变量配置示例
 
 ```env
 # .env
@@ -1065,66 +1567,144 @@ REDIS_PREFIX=fastapi_mvc
 SQLITE_DATABASE_FILE=app.db
 ```
 
-## 九、设计说明
+## 十、设计说明
 
 ### 1. 核心设计原则
 
-- **单一职责原则**：每个数据库模块只负责一种数据库的连接和管理
-- **依赖倒置原则**：业务层依赖抽象接口，而非具体实现
-- **开闭原则**：添加新数据库类型时，不需要修改现有代码
-- **接口隔离原则**：每个数据库接口只定义必要的方法
-- **里氏替换原则**：子类可以替换父类，保持接口一致性
+- **单一职责原则**：每个数据库模块只负责一种数据库的连接和管理，Redis模块独立实现缓存相关功能
+- **依赖倒置原则**：业务层依赖抽象接口（如`RedisInterface`、`BaseRepository`），而非具体实现
+- **开闭原则**：添加新数据库类型或功能时，不需要修改现有代码，只需扩展接口
+- **接口隔离原则**：每个数据库接口只定义必要的方法，避免臃肿的接口设计
+- **里氏替换原则**：子类可以替换父类，保持接口一致性，便于测试和扩展
+- **组合优于继承**：通过依赖注入和组合方式实现功能扩展，提高代码灵活性
 
-### 2. 配置管理特点
+### 2. Redis接口统一设计
 
-- **集中配置**：所有数据库配置集中管理，便于维护
-- **环境隔离**：支持多环境配置（开发、测试、生产）
-- **类型安全**：使用Pydantic进行配置验证，确保类型安全
-- **灵活扩展**：支持动态添加新的数据库配置
+- **抽象接口定义**：通过`RedisInterface`抽象类统一Redis操作方法，包括基本的`get`/`set`/`delete`以及哈希、列表、发布订阅等高级操作
+- **统一实现规范**：所有Redis客户端实现必须遵循相同的接口规范，便于替换和扩展
+- **类型安全封装**：通过`RedisCache`泛型类提供类型安全的缓存操作，自动处理序列化和反序列化
+- **键名管理**：统一的键名前缀管理，避免不同模块之间的键名冲突
 
-### 3. 数据库管理特点
+### 3. 多库注入封装设计
 
-- **统一接口**：所有数据库连接都实现相同的接口，便于使用
-- **连接池管理**：自动管理数据库连接池，提高性能
-- **会话管理**：提供安全的会话管理，自动关闭会话
-- **异常处理**：统一的异常处理机制，便于排查问题
-- **日志记录**：详细的日志记录，便于监控和调试
+- **统一依赖注入容器**：通过`DatabaseDeps`类提供统一的数据库依赖注入接口，简化服务层代码
+- **仓储层依赖注入**：通过`RepositoryDeps`类封装仓储层依赖注入，实现业务层与数据访问层的解耦
+- **配置注入**：通过`ConfigDeps`类提供统一的配置访问接口，便于配置管理和环境切换
+- **简化的依赖声明**：服务层只需声明所需的仓储类型，无需关心具体的数据库连接细节
 
-### 4. 扩展性设计
+### 4. 配置管理特点
 
-- **模块化设计**：每个数据库类型作为独立模块，便于扩展
-- **插件式架构**：支持动态添加新的数据库类型
-- **统一注册机制**：通过数据库管理器统一注册和管理数据库连接
-- **灵活的依赖注入**：支持在服务层灵活注入不同的数据库连接
+- **集中配置**：所有数据库配置集中管理，便于维护和监控
+- **环境隔离**：支持多环境配置（开发、测试、生产），通过`.env`文件实现环境切换
+- **类型安全**：使用Pydantic进行配置验证，确保类型安全和配置完整性
+- **灵活扩展**：支持动态添加新的数据库配置，无需修改核心代码
+- **配置注入**：通过依赖注入方式访问配置，便于测试和替换
 
-## 十、最佳实践
+### 5. 数据库管理特点
+
+- **统一接口**：所有数据库连接都实现相同的`DatabaseConnection`接口，便于统一管理
+- **连接池管理**：自动管理数据库连接池，提高性能和资源利用率
+- **会话管理**：提供安全的会话管理，自动关闭会话，避免资源泄漏
+- **异常处理**：统一的异常处理机制，便于排查问题和监控
+- **日志记录**：详细的日志记录，包括连接建立、断开、查询执行等关键操作
+- **Redis集成**：将Redis纳入统一的数据库管理体系，支持统一的连接初始化和关闭
+
+### 6. 扩展性设计
+
+- **模块化设计**：每个数据库类型作为独立模块，便于扩展和维护
+- **插件式架构**：支持动态添加新的数据库类型，只需实现相应的接口
+- **统一注册机制**：通过数据库管理器统一注册和管理数据库连接，便于集中管理
+- **灵活的依赖注入**：支持在服务层灵活注入不同的数据库连接和仓储实现
+- **仓储层扩展**：支持按业务域和数据库类型划分仓储，便于扩展新的业务功能
+
+### 7. 生产级特性
+
+- **连接池优化**：针对不同数据库类型优化连接池配置，提高性能
+- **超时处理**：完善的超时处理机制，避免长时间阻塞
+- **重试机制**：关键操作的重试机制，提高系统可靠性
+- **监控支持**：预留监控接口，便于集成Prometheus等监控系统
+- **健康检查**：提供数据库健康检查接口，便于容器化部署和监控
+- **安全配置**：支持SSL连接、密码加密等安全特性
+
+### 8. 测试友好设计
+
+- **依赖注入**：便于使用Mock对象替换真实数据库连接，提高测试速度
+- **接口抽象**：基于接口设计，便于编写单元测试
+- **配置隔离**：支持测试环境配置，避免影响生产环境
+- **事务管理**：支持测试用例的事务回滚，保持测试数据一致性
+
+### 9. 代码质量保障
+
+- **类型注解**：全面的类型注解，提高代码可读性和IDE支持
+- **文档完备**：完善的代码文档和设计文档，便于团队协作
+- **代码规范**：遵循统一的代码规范，提高代码质量
+- **自动化测试**：支持自动化测试，包括单元测试、集成测试和端到端测试
+
+## 十一、最佳实践
 
 1. **合理选择数据库类型**：根据业务需求选择合适的数据库类型
-   - MySQL/Oracle：关系型数据存储，适合生产环境
+   - MySQL/Oracle：关系型数据存储，适合生产环境的核心业务数据
    - SQLite：轻量级本地数据库，适合开发测试和小型应用
-   - ClickHouse：数据分析和报表
-   - Redis：缓存和会话管理
+   - ClickHouse：数据分析和报表，适合大规模数据查询
+   - Redis：缓存和会话管理，适合高频访问的数据
 
-2. **使用连接池**：启用数据库连接池，提高性能
+2. **使用连接池**：启用数据库连接池，根据应用负载调整连接池大小和超时时间
 
-3. **合理配置连接参数**：根据应用负载调整连接池大小和超时时间
+3. **合理配置连接参数**：
+   - MySQL：调整`pool_size`、`max_overflow`、`pool_pre_ping`等参数
+   - Redis：合理设置连接超时和读写超时
 
-4. **使用依赖注入**：在服务层使用依赖注入获取数据库会话，便于测试
+4. **使用依赖注入**：在服务层使用依赖注入获取数据库会话和仓储，便于测试和扩展
 
-5. **统一异常处理**：在数据库层统一处理异常，避免业务层处理数据库细节
+5. **统一异常处理**：在数据库层和服务层实现统一的异常处理机制，便于排查问题
 
 6. **详细的日志记录**：记录数据库连接、查询和错误信息，便于监控和调试
 
-7. **定期监控数据库性能**：监控数据库连接数、查询响应时间等指标
+7. **定期监控数据库性能**：监控数据库连接数、查询响应时间、缓存命中率等指标
 
 8. **使用事务管理**：对于复杂操作，使用事务确保数据一致性
 
 9. **合理设计仓储层**：根据业务需求设计合适的仓储接口，避免过度设计
 
-10. **测试驱动开发**：编写单元测试和集成测试，确保数据库操作的正确性
+10. **缓存策略设计**：
+    - 合理设置缓存过期时间
+    - 实现缓存预热机制
+    - 处理缓存穿透、缓存击穿和缓存雪崩问题
+    - 定期清理过期缓存
 
-## 十一、总结
+11. **测试驱动开发**：编写单元测试和集成测试，确保数据库操作的正确性
 
-本设计实现了一个**灵活、可扩展的多数据库管理框架**，支持MySQL、Oracle、SQLite、ClickHouse和Redis等多种数据库类型。通过**统一的配置管理**和**数据库连接接口**，实现了**业务层与数据访问层的解耦**，提高了代码的**可维护性、可测试性和可扩展性**。
+12. **代码复用**：提取通用的数据库操作逻辑，避免重复代码
 
-该设计适用于**中大型应用**，尤其是需要同时使用多种数据库的场景。通过**模块化设计**和**插件式架构**，可以轻松扩展支持新的数据库类型，满足不断变化的业务需求。
+13. **安全性考虑**：
+    - 避免SQL注入
+    - 加密敏感数据
+    - 限制数据库用户权限
+    - 使用SSL连接数据库
+
+14. **性能优化**：
+    - 优化SQL查询
+    - 使用索引
+    - 实现分页查询
+    - 避免N+1查询问题
+
+15. **可维护性设计**：
+    - 清晰的目录结构
+    - 模块化设计
+    - 完善的文档
+    - 一致的代码风格
+
+## 十二、总结
+
+本设计实现了一套**生产级的多数据库管理架构**，支持MySQL、Oracle、ClickHouse、SQLite和Redis等多种数据库类型。通过**统一的配置管理**、**标准化的连接接口**、**灵活的依赖注入机制**和**完善的Redis接口统一**，实现了业务层与数据访问层的解耦，符合开闭原则、单一职责原则和依赖倒置原则。
+
+该设计具备以下核心优势：
+
+- **良好的可扩展性**：支持动态添加新的数据库类型和功能，无需修改核心代码
+- **高度的灵活性**：通过依赖注入和组合方式实现功能扩展，提高代码灵活性
+- **生产级的可靠性**：包含连接池管理、异常处理、日志记录等生产级特性
+- **测试友好**：便于编写单元测试和集成测试，提高代码质量
+- **清晰的架构设计**：模块化设计，便于团队协作和维护
+
+该设计适用于**中大型应用**，尤其是需要同时使用多种数据库的场景。通过**模块化设计**和**插件式架构**，可以轻松扩展支持新的数据库类型，满足不断变化的业务需求。整体架构设计合理，代码结构清晰，是一套可落地的多数据库管理解决方案。
+
