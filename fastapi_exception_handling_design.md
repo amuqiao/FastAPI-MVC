@@ -38,8 +38,10 @@
 │   ├── auth.py                    # 认证授权相关异常类
 │   ├── database.py                # 数据库相关异常类
 │   ├── handler.py                 # 全局异常处理器
-│   ├── response.py                # 标准化响应工具
-│   └── middleware.py              # 请求ID中间件
+│   └── response.py                # 标准化响应工具
+├── middleware/
+│   ├── __init__.py                # 包初始化文件
+│   └── request.py                 # 请求ID中间件
 ├── config/
 │   └── logger.py                  # 日志配置
 ├── schemas/
@@ -53,7 +55,7 @@
 ```mermaid
 flowchart TD
     subgraph 请求处理流程
-        A[客户端请求] --> B[Request ID中间件]
+        A[客户端请求] --> B[Request ID中间件<br/>(middleware/request.py)]
         B --> C[FastAPI路由处理]
         C --> D{业务逻辑执行}
         D -->|正常| E[返回标准化成功响应]
@@ -111,7 +113,39 @@ flowchart TD
 
 ## 4. 标准化响应格式
 
-### 4.1 成功响应格式
+### 4.1 统一响应格式设计
+
+为了确保API响应的一致性，我们在`schemas/response.py`中定义了统一的响应模型，成功响应和错误响应共享相同的基础结构，仅在数据字段上有所差异。
+
+#### 4.1.1 基础响应模型
+
+```python
+# schemas/response.py
+from pydantic import BaseModel
+from typing import Any, Optional
+
+class BaseResponse(BaseModel):
+    """基础响应模型，所有响应的统一结构"""
+    code: int
+    message: str
+    request_id: str
+    
+    class Config:
+        from_attributes = True
+
+class SuccessResponse(BaseResponse):
+    """成功响应模型"""
+    data: Any = None
+    
+    class Config:
+        arbitrary_types_allowed = True
+
+class ErrorResponse(BaseResponse):
+    """错误响应模型"""
+    error_details: Optional[dict] = None
+```
+
+#### 4.1.2 成功响应格式
 
 ```json
 {
@@ -124,7 +158,7 @@ flowchart TD
 }
 ```
 
-### 4.2 错误响应格式
+#### 4.1.3 错误响应格式
 
 ```json
 {
@@ -136,6 +170,18 @@ flowchart TD
     "request_id": "uuid-v4-string"
 }
 ```
+
+#### 4.1.4 设计合理性说明
+
+1. **统一基础结构**：成功响应和错误响应共享相同的`code`、`message`和`request_id`字段，确保前后端对接的一致性
+2. **差异化数据字段**：
+   - 成功响应使用`data`字段返回业务数据
+   - 错误响应使用`error_details`字段返回详细错误信息
+   - 这种设计既保证了基础结构的统一，又允许根据响应类型返回不同的数据
+3. **类型安全**：通过Pydantic模型确保响应格式的类型安全
+4. **可扩展性**：可以轻松扩展基础响应模型，添加更多公共字段
+5. **清晰的语义区分**：通过不同的响应类名和字段名，清晰区分成功和错误场景
+6. **生产环境友好**：`error_details`字段为可选，便于在生产环境隐藏敏感错误信息
 
 ### 4.3 响应状态码映射
 
@@ -373,7 +419,20 @@ from config.logger import logger
 from utils.request import get_request_id
 
 async def custom_exception_handler(request: Request, exc: Exception):
-    """全局异常处理器"""
+    """全局异常处理器
+    
+    使用async关键字的原因：
+    1. FastAPI要求异常处理器必须是异步函数，以匹配其异步处理模型
+    2. 支持在异常处理过程中调用异步操作（如异步日志记录、异步数据库操作等）
+    3. 保持与FastAPI框架的设计一致性，充分利用异步IO的性能优势
+    4. 允许在异常处理中使用await关键字调用其他异步组件
+    
+    异步处理器与同步方法的关系：
+    - 异步异常处理器**可以处理同步方法抛出的异常**
+    - FastAPI框架会自动处理同步函数的调用，包括异常捕获
+    - 当同步方法抛出异常时，FastAPI会将其转换为异步异常处理流程
+    - 这种设计确保了无论业务代码是同步还是异步，都能得到统一的异常处理
+    """
     request_id = get_request_id(request)
     
     # 1. 处理自定义异常
@@ -474,30 +533,15 @@ def log_exception(request: Request, exc: Exception, error_response: ErrorRespons
 
 ### 6.3 标准化响应工具
 
+响应构建器已优化，使用`schemas/response.py`中定义的统一响应模型，确保所有响应格式的一致性。
+
 ```python
 # exception/response.py
-from pydantic import BaseModel
 from typing import Any, Optional
-
-class SuccessResponse(BaseModel):
-    """成功响应模型"""
-    code: int = 200
-    message: str = "success"
-    data: Any = None
-    request_id: str
-    
-    class Config:
-        arbitrary_types_allowed = True
-
-class ErrorResponse(BaseModel):
-    """错误响应模型"""
-    code: int
-    message: str
-    error_details: Optional[dict] = None
-    request_id: str
+from schemas.response import SuccessResponse, ErrorResponse
 
 class ResponseBuilder:
-    """响应构建器"""
+    """响应构建器，基于统一响应模型"""
     
     @staticmethod
     def success(data: Any = None, message: str = "success", code: int = 200, request_id: str = None) -> dict:
@@ -510,7 +554,7 @@ class ResponseBuilder:
         ).dict()
     
     @staticmethod
-    def error(message: str, code: int, error_details: dict = None, request_id: str = None) -> dict:
+    def error(message: str, code: int, error_details: Optional[dict] = None, request_id: str = None) -> dict:
         """构建错误响应"""
         return ErrorResponse(
             code=code,
@@ -565,7 +609,7 @@ flowchart TD
 ### 7.2 Request ID 中间件实现
 
 ```python
-# exception/middleware.py
+# middleware/request.py
 import uuid
 from fastapi import Request, Response
 from utils.request import set_request_id
@@ -699,7 +743,7 @@ logger.addHandler(console_handler)
 # main.py
 from fastapi import FastAPI
 from exception.handler import custom_exception_handler
-from exception.middleware import request_id_middleware
+from middleware.request import request_id_middleware
 from exception.base import BaseAppException
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
