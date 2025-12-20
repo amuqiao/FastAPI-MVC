@@ -290,35 +290,89 @@ fastapi_mvc/
 
 ## 四、配置管理设计
 
-### 1. 主配置文件
+### 1. 配置基类
+
+```python
+# app/config/base.py
+from pydantic_settings import BaseSettings as PydanticBaseSettings
+from pydantic_settings import SettingsConfigDict
+from typing import Optional
+
+
+class BaseSettings(PydanticBaseSettings):
+    """配置基类，统一配置加载逻辑"""
+    
+    model_config = SettingsConfigDict(
+        env_file=".env",         # 默认.env文件路径
+        env_file_encoding="utf-8", # 文件编码
+        case_sensitive=False,      # 环境变量不区分大小写
+        extra="ignore"              # 忽略未知配置项
+    )
+    
+    @classmethod
+    def from_env(cls, env_file: Optional[str] = None) -> "BaseSettings":
+        """从指定环境文件加载配置
+        
+        Args:
+            env_file: 环境文件路径，如果不指定则使用默认路径
+            
+        Returns:
+            配置实例
+        """
+        if env_file:
+            return cls(_env_file=env_file)
+        return cls()
+```
+
+### 2. 主配置文件
 
 ```python
 # app/config/settings.py
-from pydantic_settings import BaseSettings
-from typing import Optional
+from app.config.base import BaseSettings
+from typing import List, Optional
 
-class Settings(BaseSettings):
-    """主配置类"""
-    
-    # 应用基本配置
-    APP_NAME: str = "FastAPI MVC"
+class AppSettings(BaseSettings):
+    """应用主配置"""
+
+    # 应用基本信息
+    APP_NAME: str = "AgentFlow"
     APP_VERSION: str = "1.0.0"
-    DEBUG: bool = True
-    
-    # 环境变量配置
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    APP_DESCRIPTION: str = "AgentFlow应用"
 
-# 全局配置实例
-settings = Settings()
+    # 运行环境
+    ENVIRONMENT: str = "development"  # development, testing, production
+    DEBUG: bool = True
+
+    # 服务器配置
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
+    RELOAD: bool = True
+    API_V1_STR: str = "/api/v1"
+
+    # CORS配置
+    CORS_ORIGINS: List[str] = ["*"]
+    CORS_ALLOW_CREDENTIALS: bool = True
+    CORS_ALLOW_METHODS: List[str] = ["*"]
+    CORS_ALLOW_HEADERS: List[str] = ["*"]
+
+    # JWT配置
+    SECRET_KEY: str = "your-secret-key"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
+    # 配置文件优先级
+    model_config = BaseSettings.model_config.copy()
+    model_config["env_prefix"] = "APP_"  # 应用配置的环境变量前缀
+
+# 全局配置实例 - 应用启动时自动加载配置
+app_settings = AppSettings()
 ```
 
 ### 2. 数据库配置
 
 ```python
 # app/config/database.py
-from pydantic_settings import BaseSettings
+from app.config.base import BaseSettings
 from typing import Dict, Any, Optional
 
 class MySQLConfig(BaseSettings):
@@ -337,10 +391,9 @@ class MySQLConfig(BaseSettings):
     def URL(self) -> str:
         """生成MySQL连接URL"""
         return f"mysql+pymysql://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.DATABASE}?charset={self.CHARSET}"
-    
-    class Config:
-        env_prefix = "MYSQL_"
-        env_file = ".env"
+
+    model_config = BaseSettings.model_config.copy()
+    model_config["env_prefix"] = "MYSQL_"
 
 class OracleConfig(BaseSettings):
     """Oracle数据库配置"""
@@ -354,10 +407,9 @@ class OracleConfig(BaseSettings):
     def URL(self) -> str:
         """生成Oracle连接URL"""
         return f"oracle+cx_oracle://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/?service_name={self.SERVICE_NAME}"
-    
-    class Config:
-        env_prefix = "ORACLE_"
-        env_file = ".env"
+
+    model_config = BaseSettings.model_config.copy()
+    model_config["env_prefix"] = "ORACLE_"
 
 class ClickHouseConfig(BaseSettings):
     """ClickHouse数据库配置"""
@@ -371,36 +423,44 @@ class ClickHouseConfig(BaseSettings):
     def URL(self) -> str:
         """生成ClickHouse连接URL"""
         return f"clickhouse+http://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.DATABASE}"
-    
-    class Config:
-        env_prefix = "CLICKHOUSE_"
-        env_file = ".env"
+
+    model_config = BaseSettings.model_config.copy()
+    model_config["env_prefix"] = "CLICKHOUSE_"
 
 class SQLiteConfig(BaseSettings):
     """SQLite数据库配置"""
+
+    HOST: Optional[str] = None  # SQLite不需要host，但保留字段以保持一致性
+    PORT: Optional[int] = None  # SQLite不需要port，但保留字段以保持一致性
+    USER: Optional[str] = None  # SQLite不需要user，但保留字段以保持一致性
+    PASSWORD: Optional[str] = None  # SQLite不需要password，但保留字段以保持一致性
+    DATABASE: str = "agentflow"
     DATABASE_FILE: str = "app.db"
-    
+
+    # SQLAlchemy配置
+    ECHO_SQL: bool = False
+
     @property
     def URL(self) -> str:
         """生成SQLite连接URL"""
         return f"sqlite:///{self.DATABASE_FILE}"
-    
-    class Config:
-        env_prefix = "SQLITE_"
-        env_file = ".env"
+
+    model_config = BaseSettings.model_config.copy()
+    model_config["env_prefix"] = "SQLITE_"
 
 # 数据库配置实例
-mysql_config = MySQLConfig()
-oracle_config = OracleConfig()
-clickhouse_config = ClickHouseConfig()
+# 当前只实现了SQLite，其他数据库类型可以根据需要添加
 sqlite_config = SQLiteConfig()
+# mysql_config = MySQLConfig()
+# oracle_config = OracleConfig()
+# clickhouse_config = ClickHouseConfig()
 ```
 
 ### 3. Redis配置
 
 ```python
 # app/config/redis.py
-from pydantic_settings import BaseSettings
+from app.config.base import BaseSettings
 
 class RedisConfig(BaseSettings):
     """Redis配置"""
@@ -416,10 +476,9 @@ class RedisConfig(BaseSettings):
         if self.PASSWORD:
             return f"redis://:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.DB}"
         return f"redis://{self.HOST}:{self.PORT}/{self.DB}"
-    
-    class Config:
-        env_prefix = "REDIS_"
-        env_file = ".env"
+
+    model_config = BaseSettings.model_config.copy()
+    model_config["env_prefix"] = "REDIS_"
 
 # Redis配置实例
 redis_config = RedisConfig()
@@ -491,7 +550,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.config.database import mysql_config
 from app.databases.base import DatabaseConnection
-from app.logger.config import logger
+from app.logger.logger import logger
 
 class MySQLConnection(DatabaseConnection):
     """MySQL数据库连接管理"""
@@ -560,7 +619,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.config.database import oracle_config
 from app.databases.base import DatabaseConnection
-from app.logger.config import logger
+from app.logger.logger import logger
 
 class OracleConnection(DatabaseConnection):
     """Oracle数据库连接管理"""
@@ -629,7 +688,7 @@ from clickhouse_sqlalchemy import make_session
 from sqlalchemy import create_engine
 from app.config.database import clickhouse_config
 from app.databases.base import DatabaseConnection
-from app.logger.config import logger
+from app.logger.logger import logger
 
 class ClickHouseConnection(DatabaseConnection):
     """ClickHouse数据库连接管理"""
@@ -761,7 +820,7 @@ class RedisInterface(ABC):
 # app/databases/redis/client.py
 import redis
 from app.config.redis import redis_config
-from app.logger.config import logger
+from app.logger.logger import logger
 from app.databases.redis.base import RedisInterface
 from typing import Any, Optional, Dict, List
 
@@ -903,43 +962,49 @@ cache = RedisCache()
 
 ```python
 # app/databases/sqlite/connection.py
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.config.database import sqlite_config
 from app.databases.base import DatabaseConnection
-from app.logger.config import logger
+from app.logger.logger import logger
+
 
 class SQLiteConnection(DatabaseConnection):
     """SQLite数据库连接管理"""
-    
+
     def __init__(self):
         self._engine = None
         self._SessionLocal = None
         self._Base = declarative_base()
-    
+
     def connect(self):
         """建立SQLite连接"""
         try:
             self._engine = create_engine(
                 sqlite_config.URL,
-                connect_args={"check_same_thread": False}  # SQLite特定配置，允许在多线程中使用
+                connect_args={
+                    "check_same_thread": False
+                },  # SQLite特定配置，允许在多线程中使用
             )
-            self._SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self._engine)
+            self._SessionLocal = sessionmaker(
+                autocommit=False, autoflush=False, bind=self._engine
+            )
             # 测试连接
             with self._engine.connect() as conn:
-                conn.execute("SELECT 1")
+                conn.execute(text("SELECT 1"))
             logger.info("SQLite连接成功")
         except Exception as e:
             logger.error(f"SQLite连接失败: {str(e)}")
             raise
-    
+
     def disconnect(self):
         """断开SQLite连接"""
         if self._engine:
             self._engine.dispose()
+            self._engine = None
             logger.info("SQLite连接已断开")
-    
+
     def get_session(self):
         """获取SQLite会话"""
         if not self._SessionLocal:
@@ -949,14 +1014,14 @@ class SQLiteConnection(DatabaseConnection):
             yield db
         finally:
             db.close()
-    
+
     @property
     def engine(self):
         """获取SQLite引擎"""
         if not self._engine:
             self.connect()
         return self._engine
-    
+
     @property
     def Base(self):
         """获取SQLite模型基类"""
@@ -974,69 +1039,29 @@ sqlite_connection = SQLiteConnection()
 # app/databases/__init__.py
 from fastapi import Depends
 from app.databases.base import database_manager
-from app.databases.mysql.connection import mysql_connection
-from app.databases.oracle.connection import oracle_connection
-from app.databases.clickhouse.connection import clickhouse_connection
 from app.databases.sqlite.connection import sqlite_connection
-from app.databases.redis.client import redis_client
 
 # 注册数据库连接
-database_manager.register("mysql", mysql_connection)
-database_manager.register("oracle", oracle_connection)
-database_manager.register("clickhouse", clickhouse_connection)
 database_manager.register("sqlite", sqlite_connection)
 
 # 导出数据库连接实例
-mysql = mysql_connection
-oracle = oracle_connection
-clickhouse = clickhouse_connection
 sqlite = sqlite_connection
-redis = redis_client
+
 
 # 依赖注入函数 - 用于FastAPI Depends
-def get_mysql_db():
-    """MySQL数据库会话依赖注入"""
-    yield from mysql_connection.get_session()
-
-def get_oracle_db():
-    """Oracle数据库会话依赖注入"""
-    yield from oracle_connection.get_session()
-
-def get_clickhouse_db():
-    """ClickHouse数据库会话依赖注入"""
-    yield from clickhouse_connection.get_session()
-
 def get_sqlite_db():
     """SQLite数据库会话依赖注入"""
     yield from sqlite_connection.get_session()
 
-def get_redis():
-    """Redis客户端依赖注入"""
-    return redis_client
 
-# 多数据库依赖注入容器
+# 依赖注入容器 - 用于FastAPI Depends
 class DatabaseDeps:
     """数据库依赖注入容器，提供统一的依赖注入接口"""
-    
-    @staticmethod
-    def mysql():
-        return Depends(get_mysql_db)
-    
-    @staticmethod
-    def oracle():
-        return Depends(get_oracle_db)
-    
-    @staticmethod
-    def clickhouse():
-        return Depends(get_clickhouse_db)
-    
+
     @staticmethod
     def sqlite():
         return Depends(get_sqlite_db)
-    
-    @staticmethod
-    def redis():
-        return Depends(get_redis)
+
 
 # 导出依赖注入容器
 deps = DatabaseDeps()
@@ -1045,26 +1070,44 @@ deps = DatabaseDeps()
 ### 2. 应用初始化与配置注入
 
 ```python
-# app/main.py
-from fastapi import FastAPI
-from app.databases import database_manager
-from app.logger.config import logger
-from app.config.settings import settings
+# main.py
+from fastapi import FastAPI, Depends
+import argparse
+import os
+from app.config import (
+    app_settings,
+    config_deps,
+    AppSettings,
+    SQLiteConfig,
+    LoggingConfig,
+)
+from app.databases import database_manager, sqlite
+from app.api.v1 import api_v1_router
+from app.middleware import setup_cors, request_logger_middleware
+from app.exceptions.exception_handler import global_exception_handler
+from app.logger.logger import logger
 
+# 创建FastAPI应用
 app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.APP_VERSION,
-    debug=settings.DEBUG
+    title=app_settings.APP_NAME,
+    version=app_settings.APP_VERSION,
+    openapi_url=f"{app_settings.API_V1_STR}/openapi.json",
 )
 
+
+# 应用启动事件
 @app.on_event("startup")
 async def startup_event():
     """应用启动事件 - 初始化数据库连接"""
-    logger.info(f"应用启动: {settings.APP_NAME} v{settings.APP_VERSION}")
+    logger.info(f"应用启动: {app_settings.APP_NAME} v{app_settings.APP_VERSION}")
     logger.info("正在连接所有数据库...")
     database_manager.connect_all()
+    # 创建所有表
+    sqlite.Base.metadata.create_all(bind=sqlite.engine)
     logger.info("所有数据库连接成功")
 
+
+# 应用关闭事件
 @app.on_event("shutdown")
 async def shutdown_event():
     """应用关闭事件 - 断开数据库连接"""
@@ -1077,50 +1120,69 @@ async def shutdown_event():
 
 ```python
 # app/config/__init__.py
-from app.config.settings import settings
-from app.config.database import (
-    mysql_config,
-    oracle_config,
-    clickhouse_config,
-    sqlite_config
-)
-from app.config.redis import redis_config
+from fastapi import Depends
+from app.config.settings import app_settings, AppSettings
+from app.config.database import sqlite_config, SQLiteConfig
+from app.config.logger import logging_config, LoggingConfig
 
-# 配置注入容器
+
+# 配置依赖注入函数
+def get_app_settings() -> AppSettings:
+    """获取应用主配置"""
+    return app_settings
+
+
+def get_sqlite_config() -> SQLiteConfig:
+    """获取SQLite配置"""
+    return sqlite_config
+
+
+def get_logging_config() -> LoggingConfig:
+    """获取日志配置"""
+    return logging_config
+
+
+# 配置依赖注入容器
 class ConfigDeps:
     """配置依赖注入容器，提供统一的配置访问接口"""
-    
+
     @staticmethod
     def app():
-        """获取应用配置"""
-        return settings
-    
-    @staticmethod
-    def mysql():
-        """获取MySQL配置"""
-        return mysql_config
-    
-    @staticmethod
-    def oracle():
-        """获取Oracle配置"""
-        return oracle_config
-    
-    @staticmethod
-    def clickhouse():
-        """获取ClickHouse配置"""
-        return clickhouse_config
-    
+        """应用主配置依赖"""
+        return Depends(get_app_settings)
+
     @staticmethod
     def sqlite():
-        """获取SQLite配置"""
-        return sqlite_config
-    
-    @staticmethod
-    def redis():
-        """获取Redis配置"""
-        return redis_config
+        """SQLite配置依赖"""
+        return Depends(get_sqlite_config)
 
-# 导出配置注入容器
+    @staticmethod
+    def logging():
+        """日志配置依赖"""
+        return Depends(get_logging_config)
+
+
+# 导出配置实例和依赖容器
+__all__ = [
+    # 配置实例
+    "app_settings",
+    "sqlite_config",
+    "logging_config",
+    # 配置类型
+    "AppSettings",
+    "SQLiteConfig",
+    "LoggingConfig",
+    # 依赖注入
+    "ConfigDeps",
+    "config_deps",
+    # 依赖函数
+    "get_app_settings",
+    "get_sqlite_config",
+    "get_logging_config",
+]
+
+
+# 创建依赖容器实例
 config_deps = ConfigDeps()
 ```
 
