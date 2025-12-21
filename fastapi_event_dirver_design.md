@@ -36,9 +36,9 @@
 │   │       └── auth.py            # 认证相关API
 │   ├── services/                  # 服务层
 │   │   └── user_service.py        # 用户服务，发布事件
+│   ├── config/                    # 配置文件
+│   │   └── event_config.py        # 事件驱动配置
 │   └── main.py                    # 应用入口，事件订阅注册
-└── config/                        # 配置文件
-    └── event_config.py            # 事件驱动配置
 ```
 
 ## 3. 核心组件设计
@@ -312,7 +312,7 @@ async def shutdown_event():
 ### 5.2 事件总线配置
 
 ```python
-# config/event_config.py
+# app/config/event_config.py
 class EventConfig:
     """事件驱动配置类"""
     # 是否启用异步事件处理
