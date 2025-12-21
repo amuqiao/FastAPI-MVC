@@ -41,7 +41,7 @@
 │   └── response.py                # 标准化响应工具
 ├── middleware/
 │   ├── __init__.py                # 包初始化文件
-│   └── request.py                 # 请求ID中间件
+│   └── request.py                 # 请求ID中间件、请求日志中间件
 ├── config/
 │   └── logger.py                  # 日志配置
 ├── schemas/
@@ -56,59 +56,67 @@
 flowchart TD
     subgraph 请求处理流程
         A[客户端请求] --> B[Request ID中间件<br/>(middleware/request.py)]
-        B --> C[FastAPI路由处理]
-        C --> D{业务逻辑执行}
-        D -->|正常| E[返回标准化成功响应]
-        D -->|异常| F[抛出异常]
-        F --> G[全局异常处理器]
-        G --> H[返回标准化错误响应]
+        B --> C[请求日志中间件<br/>(middleware/request.py)]
+        C --> D[FastAPI路由处理]
+        D --> E{业务逻辑执行}
+        E -->|正常| F[返回标准化成功响应]
+        E -->|异常| G[抛出异常]
+        G --> H[全局异常处理器]
+        H --> I[返回标准化错误响应]
     end
     
     subgraph 异常处理体系
-        F -->|自定义业务异常| I[BusinessException]
-        F -->|认证授权异常| J[AuthException]
-        F -->|资源不存在| K[NotFoundException]
-        F -->|参数验证异常| L[ValidationException]
-        F -->|数据库异常| M[DatabaseException]
-        F -->|未知异常| N[Exception]
+        G -->|自定义业务异常| J[BusinessException]
+        G -->|认证授权异常| K[AuthException]
+        G -->|资源不存在| L[NotFoundException]
+        G -->|参数验证异常| M[ValidationException]
+        G -->|数据库异常| N[DatabaseException]
+        G -->|未知异常| O[Exception]
         
-        I --> G
-        J --> G
-        K --> G
-        L --> G
-        M --> G
-        N --> G
+        J --> H
+        K --> H
+        L --> H
+        M --> H
+        N --> H
+        O --> H
     end
     
     subgraph 日志与追踪
-        G --> O[记录异常日志]
-        O --> P[关联Request ID]
-        P --> Q[按级别分类存储]
-        B --> R[生成Request ID]
-        R --> S[添加到请求上下文]
-        S --> T[添加到响应头]
+        C --> P[记录请求日志]
+        P --> Q[关联Request ID]
+        Q --> R[按级别分类存储]
+        H --> S[记录异常日志]
+        S --> T[关联Request ID]
+        T --> U[按级别分类存储]
+        B --> V[生成Request ID]
+        V --> W[添加到请求上下文]
+        W --> X[添加到响应头]
     end
     
     style A fill:#FF6B6B,stroke:#2D3436,stroke-width:3px,color:white,rx:8,ry:8
     style B fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
-    style C fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
-    style D fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
-    style E fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
-    style F fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
-    style G fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
-    style H fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
-    style I fill:#FF6B6B,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style C fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style D fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style E fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style F fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style G fill:#FF9FF3,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style H fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style I fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style J fill:#FF6B6B,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style K fill:#FF6B6B,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style L fill:#FF6B6B,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style M fill:#FF6B6B,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style N fill:#FF6B6B,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
-    style O fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style O fill:#FF6B6B,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style P fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
     style Q fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
-    style R fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
-    style S fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
-    style T fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style R fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style S fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style T fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style U fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style V fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style W fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style X fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
 ```
 
 ## 4. 标准化响应格式
@@ -578,17 +586,18 @@ flowchart TD
         C --> E[存储Request ID到请求上下文]
         D --> E
         
-        E --> F[处理请求]
-        F --> G[记录日志（关联Request ID）]
-        F --> H{是否调用第三方服务}
+        E --> F[记录请求日志（关联Request ID）]
+        F --> G[处理请求]
+        G --> H{是否调用第三方服务}
         
         H -->|是| I[传递Request ID到第三方服务]
         I --> J[处理第三方服务响应]
         J --> K
         H -->|否| K
         
-        K --> L[返回响应（包含Request ID）]
-        L --> M[客户端接收响应]
+        K --> L[记录响应日志（关联Request ID）]
+        L --> M[返回响应（包含Request ID）]
+        M --> N[客户端接收响应]
     end
     
     style A fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
@@ -596,14 +605,15 @@ flowchart TD
     style C fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style D fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style E fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
-    style F fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
-    style G fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style F fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style G fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
     style H fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
     style I fill:#45B7D1,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
     style J fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
     style K fill:#96CEB4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
-    style L fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
-    style M fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style L fill:#FECA57,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
+    style M fill:#54A0FF,stroke:#2D3436,stroke-width:2px,color:white,rx:8,ry:8
+    style N fill:#4ECDC4,stroke:#2D3436,stroke-width:2px,color:#2D3436,rx:8,ry:8
 ```
 
 ### 7.2 Request ID 中间件实现
@@ -647,6 +657,60 @@ def set_request_id(request: Request, request_id: str):
 def get_request_id(request: Request) -> str:
     """从请求上下文获取Request ID"""
     return getattr(request.state, REQUEST_ID_KEY, "")
+```
+
+### 7.4 请求日志中间件实现
+
+```python
+# middleware/request.py
+import time
+from fastapi import Request, Response
+from config.logger import logger
+from utils.request import get_request_id
+
+async def request_log_middleware(request: Request, call_next):
+    """请求日志中间件"""
+    # 记录请求开始时间
+    start_time = time.time()
+    
+    # 获取请求基本信息
+    request_id = get_request_id(request)
+    path = request.url.path
+    method = request.method
+    client_ip = request.client.host if request.client else "unknown"
+    
+    # 记录请求信息（不记录请求体，避免敏感信息泄露）
+    logger.info(
+        "[Request Received]",
+        extra={
+            "request_id": request_id,
+            "path": path,
+            "method": method,
+            "client_ip": client_ip,
+            "headers": {k: v for k, v in request.headers.items() if k not in ["Authorization", "Cookie"]}
+        }
+    )
+    
+    # 处理请求
+    response = await call_next(request)
+    
+    # 计算请求处理时间
+    process_time = time.time() - start_time
+    
+    # 记录响应信息
+    logger.info(
+        "[Request Completed]",
+        extra={
+            "request_id": request_id,
+            "path": path,
+            "method": method,
+            "client_ip": client_ip,
+            "status_code": response.status_code,
+            "process_time": round(process_time * 1000, 2)  # 转换为毫秒
+        }
+    )
+    
+    return response
 ```
 
 ## 8. 日志记录策略
@@ -743,7 +807,7 @@ logger.addHandler(console_handler)
 # main.py
 from fastapi import FastAPI
 from exception.handler import custom_exception_handler
-from middleware.request import request_id_middleware
+from middleware.request import request_id_middleware, request_log_middleware
 from exception.base import BaseAppException
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -752,6 +816,7 @@ app = FastAPI(title="FastAPI Example", version="1.0.0")
 
 # 注册中间件
 app.middleware("http")(request_id_middleware)
+app.middleware("http")(request_log_middleware)
 
 # 注册异常处理器
 app.add_exception_handler(BaseAppException, custom_exception_handler)
