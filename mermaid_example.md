@@ -26,8 +26,6 @@ flowchart LR
         end
         class topicLayer subgraphStyle
 
-        %% Kafka核心规则说明（避免歧义）
-        Note[Kafka核心规则：<br/>1. 同一消费组：1分区→1消费者（无重复消费）<br/>2. 不同消费组：可同时订阅同一分区（独立消费）]:::ruleNoteStyle
     end
     class kafkaCluster kafkaClusterStyle
 
@@ -67,4 +65,8 @@ flowchart LR
     linkStyle 3,4 stroke:#333,stroke-width:2px,arrowheadStyle:filled
     linkStyle 5,6 stroke:#4299e1,stroke-width:1.5px,arrowheadStyle:filled
 
+    %% Kafka核心规则说明（避免歧义）
+    Note[Kafka核心规则：<br/>1. 同一消费组：1分区→1消费者（无重复消费）<br/>2. 不同消费组：可同时订阅同一分区（独立消费）]:::ruleNoteStyle
+    %% 注释关联
+    Note -.-> kafkaCluster
 ```
