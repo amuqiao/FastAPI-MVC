@@ -34,7 +34,7 @@ flowchart LR
     %% 3. Transformer Encoder 层
     subgraph EncoderStack["编码器堆叠（N层）"]
         %% 单个编码器层
-        subgraph EncoderLayer1["编码器层 1"]
+        subgraph EncoderLayer["编码器层"]
             G1["多头自注意力<br/>Multi-Head Self-Attention [batch, seq_len, H]"]:::attnStyle
             H1["Add & Norm<br/>残差连接+层归一化 [batch, seq_len, H]"]:::blockStyle
             subgraph EncoderFF1["前馈网络（核心）"]
@@ -44,20 +44,7 @@ flowchart LR
             end
             J1["Add & Norm<br/>残差连接+层归一化 [batch, seq_len, H]"]:::blockStyle
         end
-        class EncoderLayer1 subgraphStyle
-        
-        %% 中间层省略
-        subgraph EncoderLayerN["编码器层 N"]
-            GN["多头自注意力<br/>Multi-Head Self-Attention [batch, seq_len, H]"]:::attnStyle
-            HN["Add & Norm<br/>残差连接+层归一化 [batch, seq_len, H]"]:::blockStyle
-            subgraph EncoderFFN["前馈网络（核心）"]
-                IN1["Linear 1<br/>升维 [batch, seq_len, 4×H]"]:::ffStyle
-                IN2["GELU<br/>激活函数 [batch, seq_len, 4×H]"]:::activeStyle
-                IN3["Linear 2<br/>降维 [batch, seq_len, H]"]:::ffStyle
-            end
-            JN["Add & Norm<br/>残差连接+层归一化 [batch, seq_len, H]"]:::blockStyle
-        end
-        class EncoderLayerN subgraphStyle
+        class EncoderLayer subgraphStyle
     end
     class EncoderStack subgraphStyle
 
@@ -75,13 +62,12 @@ flowchart LR
     A --> B --> E
     A --> C --> E
     A --> D --> E
-    E --> F --> G1 --> H1 --> I11 --> I12 --> I13 --> J1 --> GN
-    GN --> HN --> IN1 --> IN2 --> IN3 --> JN
-    JN -->|最终输出| O
-    JN -->|最终输出| P
+    E --> F --> G1 --> H1 --> I11 --> I12 --> I13 --> J1
+    J1 -->|最终输出| O
+    J1 -->|最终输出| P
 
     %% 连接线样式
-    linkStyle 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 stroke:#4299e1,stroke-width:2px
+    linkStyle 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14 stroke:#4299e1,stroke-width:2px
 
     %% 可选：将注释节点定位到合适位置（提升可读性）
     Note -.-> EncoderStack
