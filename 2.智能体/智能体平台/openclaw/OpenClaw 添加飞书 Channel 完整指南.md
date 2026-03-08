@@ -141,3 +141,6 @@ Channels updated.
 5. 查看日志获取详细错误信息
 
 希望这份指南能帮助您成功添加和配置飞书 Channel！
+
+TODO
+飞书 Channel 断开连接的解决方案
