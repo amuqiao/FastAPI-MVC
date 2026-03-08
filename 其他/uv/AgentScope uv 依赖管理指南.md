@@ -261,17 +261,8 @@ uv pip upgrade
 # 默认只同步生产依赖（[project.dependencies]）
 uv sync
 
-# 同步生产依赖 + 特定可选依赖组
-uv sync --group realtime
-
-# 同步生产依赖 + 多个依赖组
-uv sync --group realtime --group a2a
-
 # 同步生产依赖 + 开发依赖
-uv sync --group dev
-
-# 同步生产依赖 + 所有可选依赖（使用 full 依赖组）
-uv sync --group full
+uv sync --extra dev
 
 # 查看依赖
 uv pip list
