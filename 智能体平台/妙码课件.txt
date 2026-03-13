@@ -1,0 +1,129 @@
+基于Langchain4j研发Manus核心架构与实践，前阿里资深架构师带你极速进阶AI应用开发
+代码：https://u19tul1sz9g.feishu.cn/file/Qh2TbKgqpoIeAlxAZJwcpIonn0d   密码：74@763a7
+文档：https://u19tul1sz9g.feishu.cn/docx/O4fpdqx7ToiBeoxyMTCcbgyBnlh 密码：1#74e845
+
+比SpringAI更强大的Java生态AI工具链 - Langchain4j完整功能梳理与应用
+代码: https://u19tul1sz9g.feishu.cn/file/RbJEblGyeomgcyxbfJMcMu24nGc 密码：1N9#9829
+文档：https://u19tul1sz9g.feishu.cn/docx/AR02dCVw6o6KVJxymrFcvOrindg 密码：3&143Q59
+
+Spring AI + AI大模型应用最完整教程，包含Ollama、Deepseek等本地模型应用
+文档： https://u19tul1sz9g.feishu.cn/docx/Y9XZdpRyzoDuUQx8x7RcX8hxnfP 密码 ：8f@43223 
+代码：https://u19tul1sz9g.feishu.cn/file/NmiQb3sWdoNLIIxJWEOc6GIGnuf 密码：4N95&213
+
+SpringAI+Deepseek+飞书+ RAG 打造企业/个人专属AI知识库（提供源码）
+文档 ：https://u19tul1sz9g.feishu.cn/docx/P3UkdkyAro4krbx4gabc8wJEnBf 密码：344S658#
+代码：https://u19tul1sz9g.feishu.cn/file/Hj6CbyS6loNrkZxZNlDcQHGDn0c?from=from_copylink 密码：&19X5913
+
+Docker容器化技术实战，资深云原生架构师带你学会Docker各种细节玩法
+文档：https://u19tul1sz9g.feishu.cn/docx/G9HBdCJzPovF2oxV3TDcKGGInnN?from=from_copylink 密码：51364@z8
+
+Java任务调度框架之Quartz实战与底层设计原理
+文档：https://u19tul1sz9g.feishu.cn/docx/PVVEd9hMToJwXZxc7HBcbgJMnxg?from=from_copylink 密码：75R4#356
+代码：https://u19tul1sz9g.feishu.cn/file/GzIybq7UvoQ0Q2xtB3ncfsssnNc 密码：3&23w795
+
+基于Langchain4j研发Manus核心架构与实践，前阿里资深架构师带你极速进阶AI应用开发
+直播回放：https://bcsnv.xetslk.com/sl/TNlPL
+代码：https://u19tul1sz9g.feishu.cn/file/Qh2TbKgqpoIeAlxAZJwcpIonn0d?from=from_copylink   密码：74@763a7
+文档：https://u19tul1sz9g.feishu.cn/docx/O4fpdqx7ToiBeoxyMTCcbgyBnlh 密码：1#74e845
+
+Java+Python+AI混合编程实战 - 与前阿里资深架构师一起快速进阶全栈混合编程专家
+录播：https://bcsnv.xetslk.com/sl/2RdHhF
+文档：https://u19tul1sz9g.feishu.cn/docx/Xus9drjP3op8amx3M47cxaoknah 密码：s@166272
+代码：https://u19tul1sz9g.feishu.cn/file/VXDbbUzS8odozPxMeZzcLvIOnOe 密码：C4611&38
+
+MCP核心设计分析与代码实践 - 2小时快速搞定MCP协议与AI智能体场景落地 
+直播回放：https://bcsnv.xetslk.com/sl/bxEgc
+文档：https://u19tul1sz9g.feishu.cn/docx/G3hGdMhpJogdPfxbXXLcRg0enff 密码：51@9S579
+
+突破RAG瓶颈 - RAG技术底层原理分析与优化策略实战
+文档：https://u19tul1sz9g.feishu.cn/docx/BqsZddbF7ol4AwxTvefcNAf1nng 密码：718&65M3
+代码：https://u19tul1sz9g.feishu.cn/file/It2CbgOIVorYRcxLqQncBRqInbh 密码：#122N335
+
+Google Agent2Agent（A2A）vs MCP 多智能体通信协议与代码实践
+直播回放：https://e2gaa.xetslk.com/sl/3hX5pq
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/Uuwtdck9zoMAaWxD7l4cZEItnnb   密码：miaoma88
+
+Langchain × Dify 技术实践 - 以产品驱动来快速掌握AI大模型开发框架
+直播回放：https://e2gaa.xetslk.com/sl/1pfTla
+文档：https://u19tul1sz9g.feishu.cn/docx/K8x6dOYTsoIv3cxif0Zch8avnDh 密码：4#4118u2
+
+Text2SQL技术分析与优化实践 - 从零到一带你极速构建数据分析AI智能体
+直播回放：https://e2gaa.xetslk.com/sl/fds6
+https://u19tul1sz9g.feishu.cn/docx/SBfNdixq9oD3n6xNAh1chXVEnXc?from=from_copylink   密码：n14452#3
+
+打造企业级AI智能客服系统 - MCP与RAG技术综合应用实践
+直播回放：https://e2gaa.xetslk.com/sl/35L5jF
+讲义资料：https://u19tul1sz9g.feishu.cn/docx/BPO4dbo0voxdOGx6Yf6cV8fLnph   密码：32t127&4
+
+极速打造AI可视化数据分析系统：TEXT2SQL应用实战进阶
+直播回放：https://e2gaa.xetslk.com/sl/2VXu3A
+文档：https://u19tul1sz9g.feishu.cn/docx/WVWsdIdBloBvPVxPExqcit9Rnxe   密码：6468X1&2
+
+轻松搞定Code Reviewer - 基于云效的AI代码审核智能体开发实战
+直播回放：https://e2gaa.xetslk.com/sl/3E1CcB
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/RKEVdBdhSo9cX6xMjVlcY1eXn1g   密码：54337u@6
+
+LLM智能体应用实践 - 快速构建基于LLM的AI客户画像系统
+直播回放：https://e2gaa.xetslk.com/sl/6P95L
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/WeNDdWY4rokcGAxtwvGcOIQGnWh   密码：78X#2242
+
+RAG方案选型深度分析 - LangChain与LlamaIndex综合对比以及融合应用
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/OK1IdAhm2oU5njxM52AcoN0ondf   密码：569@99m9
+周四公开课
+
+打造更强大的AI知识库系统 - RAG检索效果优化策略分析与应用
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/MW4udxbODoiVthxwZRVcBQopnmf   密码：77#3P123
+
+RAG评估生态全景：AutoRAG/Ragas/DeepEval技术解析与RAG工程闭环实践 
+直播回放：https://e2gaa.hk.xet.citv.cn/sl/4kSpm7
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/ZZ8jdoTZJoSBDexzAO0cXkh3njf   密码：&L675312
+
+如何管理超长AI对话记忆 - 大模型记忆管理技术方案详解 
+直播回放：https://e2gaa.hk.xet.citv.cn/sl/e1VIz
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/DcYYdWonWosBmZx18GNcUrWVn0g   密码：1694y3&3
+
+AI Agent平台字节Coze开源版原理分析与二次开发实践
+直播回放：https://e2gaa.hk.xet.citv.cn/sl/G3q8p
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/KjBKdGFodorGTyxtjEecgPyMnpf   密码：&1V83931
+
+AI全栈智能体开发指南 - 基于AutoGen的多智能体协作技术与DeepResearch技术解析
+直播回放：https://e2gaa.hk.xet.citv.cn/sl/2Aa0ir
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/HtNvdIzGUoHXdlxSKg0cisfLnyb   密码：2P38@327
+
+MCP技术核心原理与应用以及最新Streamable HTTP模式解析 - 彻底弄懂如何使用MCP
+直播回放：https://e2gaa.hk.xet.citv.cn/sl/3gflZC
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/FUzldFYmDoavGYxT38Zcf0RYnjc   密码：2&24c235
+
+阿里最新智能体框架AgentScope进阶 - 快速掌握多智能体协作应用模式
+直播回放：https://e2gaa.hk.xet.citv.cn/sl/t2AVD
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/J7DwdXAWNof1AHxab9mcNk6fnvy   密码：c179372&
+
+SpringAI Alibaba框架综合分析 - 深入理解java大模型开发框架未来发展规划
+直播回放：https://e2gaa.hk.xet.citv.cn/sl/2FAoIK
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/B2Lqdq8cNolBy0xH7DAcbDsRnRh   密码：1713r6&8
+
+基于SpringAI的数据智能分析系统全栈入门实践
+直播回放：https://e2gaa.xetslk.com/sl/Fi8y6
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/V0thdXYHlooOivx02j4cOeMHnqe   密码：5#827e61
+
+解锁最佳AI大模型上下文记忆解决方案 - 时序知识图谱框架Graphiti详解
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/K4kYdP6AkofaxXxoAZKcxkfpnFe   密码：R4693&19
+
+Langchain/Langgraph 1.0 正式版内容更新指南与最新AI应用构建实践   
+直播回放：https://e2gaa.xetslk.com/sl/dgeRs
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/KnT0dSCNSozZX7xhXPOcmbWLnQb   密码：813A2@87
+
+妙码学院AI应用开发者社区：https://u19tul1sz9g.feishu.cn/wiki/Xfo4w8bKniEGeUk0SmhcNLVXnC6
+
+OpenClaw 通用智能体核心原理设计与 Pi-Mono 内核解析
+直播链接https://e2gaa.xetslk.com/sl/3byax7
+讲义https://u19tul1sz9g.feishu.cn/docx/M5l6d4mzwolaXBx2bEWcAYcnnGd   密码：@95a3748
+
+Openclaw、Nanobot、Nanoclaw、Lobester-ai主流智能体分析对比，深入理解AI通用智能体开发技术内核
+直播回放：https://e2gaa.xetslk.com/sl/2zcbU4
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/TGpbdyFndoWYzOxW9BVcehcRnfd   密码：7226B@39
+
+OpenClaw最新版本架构升级解析 - 全面掌握智能体记忆设计秘诀
+直播回放：https://e2gaa.xetslk.com/sl/1LswUd
+飞书链接：https://u19tul1sz9g.feishu.cn/docx/QhBhdJlxToHpt6x0HcMc28Lrnae   密码：87#55d93 
+明天公开课
