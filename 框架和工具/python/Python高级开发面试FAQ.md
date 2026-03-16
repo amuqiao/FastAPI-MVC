@@ -870,7 +870,7 @@ with Manager() as manager:
 ### Q14：asyncio 的工作原理？协程、任务、事件循环的关系？
 
 ```mermaid
-flowchart LR
+flowchart TD
     classDef loopStyle fill:#ffd700,stroke:#333,stroke-width:3px
     classDef coroStyle fill:#f9f,stroke:#333,stroke-width:2px
     classDef taskStyle fill:#9ff,stroke:#333,stroke-width:2px
@@ -1038,8 +1038,22 @@ flowchart LR
     class behavioral subgraphStyle
 ```
 
+**9 种设计模式概述：**
+
+| 模式 | 类型 | 概述 |
+|------|------|------|
+| **① 单例模式** | 创建型 | 确保类只有一个实例，全局共享。常用于配置、连接池等。 |
+| **② 工厂模式** | 创建型 | 将对象创建逻辑封装，通过名称/参数创建不同实现，解耦调用方与具体类。 |
+| **③ 建造者模式** | 创建型 | 分步构建复杂对象，链式调用，使构建过程清晰、可读。 |
+| **④ 装饰器模式** | 结构型 | 动态为对象/函数增加职责，不修改原实现，符合开闭原则。 |
+| **⑤ 代理模式** | 结构型 | 为对象提供代理，控制访问（延迟加载、权限、缓存等）。 |
+| **⑥ 适配器模式** | 结构型 | 将一个类的接口转换成调用方期望的接口，使不兼容类能协同工作。 |
+| **⑦ 观察者模式** | 行为型 | 定义一对多依赖，主题状态变化时通知所有观察者，实现松耦合事件系统。 |
+| **⑧ 策略模式** | 行为型 | 将算法族封装为可互换策略，通过依赖注入切换，避免 if-else。 |
+| **⑨ 命令模式** | 行为型 | 将请求封装为对象，解耦调用者与执行者，支持撤销、队列、宏命令。 |
+
 ```python
-# ① 单例模式（线程安全版本）
+# ① 单例模式（Singleton）—— 确保全局唯一实例，如配置、连接池
 import threading
 
 class Singleton:
@@ -1083,7 +1097,85 @@ class AnthropicModel:
 
 model = ModelFactory.create("openai", temperature=0.7)
 
-# ③ 观察者模式（事件系统）
+# ③ 建造者模式（链式调用）
+class QueryBuilder:
+    def __init__(self):
+        self._select = "*"
+        self._table = ""
+        self._where: list[str] = []
+
+    def select(self, fields: str = "*"):
+        self._select = fields
+        return self
+
+    def from_table(self, table: str):
+        self._table = table
+        return self
+
+    def where(self, condition: str):
+        self._where.append(condition)
+        return self
+
+    def build(self) -> str:
+        sql = f"SELECT {self._select} FROM {self._table}"
+        if self._where:
+            sql += " WHERE " + " AND ".join(self._where)
+        return sql
+
+query = QueryBuilder().select("id, name").from_table("users").where("age > 18").build()
+
+# ④ 装饰器模式（Decorator）—— 动态增强对象/函数职责，不修改原实现
+from functools import wraps
+
+def retry(max_attempts: int = 3):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_attempts):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    if attempt == max_attempts - 1:
+                        raise
+        return wrapper
+    return decorator
+
+@retry(max_attempts=3)
+def fetch_data(url: str): ...
+
+# ⑤ 代理模式（Proxy）—— 为对象提供代理，控制访问（延迟加载、权限、缓存等）
+class LazyImage:
+    def __init__(self, filename: str):
+        self._filename = filename
+        self._image = None
+
+    def display(self):
+        if self._image is None:
+            self._image = self._load_from_disk()
+        return self._image.render()
+
+    def _load_from_disk(self):
+        return Image(self._filename)  # 模拟昂贵操作
+
+# ⑥ 适配器模式（Adapter）—— 统一不同接口，使不兼容类能协同工作
+class OldLogger:
+    def log_message(self, msg: str): ...
+
+class NewLogger:
+    def log(self, level: str, message: str): ...
+
+class LoggerAdapter:
+    def __init__(self, old_logger: OldLogger):
+        self._old = old_logger
+
+    def log(self, level: str, message: str):
+        self._old.log_message(f"[{level}] {message}")
+
+# NewLogger 与 LoggerAdapter 接口一致，可互换使用
+def use_logger(logger: object):
+    logger.log("INFO", "hello")
+
+# ⑦ 观察者模式（Observer）—— 一对多依赖，主题变化时通知所有观察者
 from collections import defaultdict
 from typing import Callable
 
@@ -1104,7 +1196,7 @@ unsubscribe = bus.on("user.login", lambda user: print(f"{user} 登录"))
 bus.emit("user.login", "Alice")
 unsubscribe()  # 取消订阅
 
-# ④ 策略模式（依赖注入）
+# ⑧ 策略模式（Strategy）—— 封装可互换算法，通过依赖注入切换
 from abc import ABC, abstractmethod
 
 class SortStrategy(ABC):
@@ -1129,6 +1221,45 @@ class Sorter:
 
 sorter = Sorter(QuickSort())
 result = sorter.sort([3, 1, 4, 1, 5, 9])
+
+# ⑨ 命令模式（Command）—— 将请求封装为对象，解耦调用者与执行者
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
+class Command(ABC):
+    @abstractmethod
+    def execute(self) -> None: ...
+
+@dataclass
+class Light:
+    on: bool = False
+
+    def turn_on(self): self.on = True
+
+    def turn_off(self): self.on = False
+
+class LightOnCommand(Command):
+    def __init__(self, light: Light):
+        self._light = light
+
+    def execute(self):
+        self._light.turn_on()
+
+class Invoker:
+    def __init__(self):
+        self._command: Command | None = None
+
+    def set_command(self, cmd: Command):
+        self._command = cmd
+
+    def do_it(self):
+        if self._command:
+            self._command.execute()
+
+light = Light()
+invoker = Invoker()
+invoker.set_command(LightOnCommand(light))
+invoker.do_it()  # light.on == True
 ```
 
 ---
