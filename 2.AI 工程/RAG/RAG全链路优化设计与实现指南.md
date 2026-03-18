@@ -1051,7 +1051,7 @@ class OptimizedRAGPipeline:
 让 LLM 将用户问题改写成更利于检索的形式：
 
 ```mermaid
-flowchart LR
+flowchart TD
     classDef inputStyle fill:#f9f,stroke:#333,stroke-width:2px
     classDef llmStyle fill:#ffd700,stroke:#333,stroke-width:2px
     classDef outputStyle fill:#9ff,stroke:#333,stroke-width:2px
