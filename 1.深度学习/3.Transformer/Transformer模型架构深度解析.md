@@ -266,7 +266,7 @@ flowchart LR
 ### 3. 架构全景与数据流
 
 ```mermaid
-flowchart TB
+flowchart LR
     classDef inputStyle fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
     classDef embedStyle fill:#e8eaf6,stroke:#283593,stroke-width:2px
     classDef encoderStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px
