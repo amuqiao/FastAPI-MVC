@@ -19,3 +19,8 @@ Mermaid
 Agent / Sub-agent
 Prompt Engineering
 你只要回我一句：讲解 XXX，我就按你这套结构直接产出完整 Markdown 学习笔记。
+
+需要我帮你整理一份 Claude Skill 到 Codex Skill 的一键迁移脚本/模板吗？可以直接复制使用，快速完成格式转换。
+
+
+  已检查文件已成功落盘。若你要继续，我可以下一步直接帮你把这三篇原始笔记改名归档到 原始笔记/ 或 sources/ 目录，并顺手搭好主文档 + 子主题文档的知识库结构。
