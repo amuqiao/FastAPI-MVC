@@ -1,4 +1,6 @@
-本文整理 macOS 系统下查看 Shell 信息、切换默认 Shell（以 zsh 为例）的完整操作步骤，结构清晰且可直接复用。
+# macOS Shell 切换指南
+
+本文整理 macOS 系统下查看 Shell 信息、切换默认 Shell 的完整操作步骤，适合作为 `macOS-常用操作.md` 的专项操作文档。
 
 ## 1. 查看当前 Shell 及版本信息
 | 命令 | 作用 | 示例输出（参考） |
@@ -36,7 +38,7 @@ cat /etc/shells
 /bin/zsh
 ```
 
-## 3. 切换默认 Shell 为 zsh
+## 3. 切换默认 Shell
 ### 3.1 前提：确认 zsh 是否预装
 - macOS 10.15（Catalina）及以上版本：默认预装 zsh，可直接跳过安装步骤。
 - macOS 10.14 及以下版本：需先通过 Homebrew 安装 zsh。
@@ -51,7 +53,7 @@ brew install zsh
 ```
 
 ### 3.3 执行切换命令
-无论是否手动安装，切换默认 Shell 均使用 `chsh` 命令：
+无论是否手动安装，切换默认 Shell 均使用 `chsh` 命令。以下示例切换到 `zsh`：
 ```bash
 # 切换默认 Shell 为 zsh（路径需与 /etc/shells 中一致）
 chsh -s /bin/zsh

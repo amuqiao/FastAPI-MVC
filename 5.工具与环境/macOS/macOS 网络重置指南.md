@@ -1,4 +1,8 @@
-#### 1. （可选但建议）备份原有网络配置文件
+# macOS 网络重置指南
+
+本文用于记录 macOS 下网络异常时的常见重置步骤，适合作为 `macOS-常用操作.md` 的专项排障文档。
+
+## 1. （可选但建议）备份原有网络配置文件
 在删除配置前先备份，防止意外问题，执行：
 ```bash
 # 创建备份目录并复制配置文件
@@ -6,12 +10,12 @@ mkdir -p ~/NetworkConfigBackup
 sudo cp -R /Library/Preferences/SystemConfiguration/* ~/NetworkConfigBackup/
 ```
 
-#### 2. 刷新 DNS 缓存
+## 2. 刷新 DNS 缓存
 ```bash
 sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
 ```
 
-#### 3. 重置 Wi-Fi 网络接口
+## 3. 重置 Wi-Fi 网络接口
 ```bash
 # 1. 查看当前活跃的 Wi-Fi 接口名（确认不是 en1 等）
 networksetup -listallhardwareports | grep -A 1 Wi-Fi
@@ -22,16 +26,16 @@ sleep 2  # 等待2秒确保接口完全关闭
 sudo ifconfig en0 up
 ```
 
-#### 4. 重置网络配置文件
+## 4. 重置网络配置文件
 这一步替代「删除配置后重启电脑」，删除配置后直接重启网络管理服务：
 ```bash
 # 删除非关键的网络配置文件（保留原有过滤逻辑）
 sudo find /Library/Preferences/SystemConfiguration/ -type f -not -name "com.apple.Boot.plist" -exec sudo rm -f {} \;
 ```
 
-#### 5.重启电脑
+## 5. 重启电脑
 
-#### 6. 重新连接 Wi-Fi（手动操作）
+## 6. 重新连接 Wi-Fi（手动操作）
 在 MacBook 右上角的 Wi-Fi 图标中，先断开当前连接，再重新连接你的 Wi-Fi 网络即可。
 
 ### 验证网络是否恢复
