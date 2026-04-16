@@ -1,7 +1,0 @@
-interface:
-  display_name: "代码仓库分析"
-  short_description: "分层分析本地代码仓库，先速览再逐步深入架构或模块"
-  default_prompt: "使用 $codebase-project-analysis 分析本地代码仓库。先澄清我的分析目标，默认从 scan 开始，只抓主模块和主链路，先给简洁结论，并在有帮助时配 Mermaid 图。"
-
-policy:
-  allow_implicit_invocation: true

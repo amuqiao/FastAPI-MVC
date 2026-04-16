@@ -1,7 +1,0 @@
-interface:
-  display_name: "Mermaid Analysis Visualizer"
-  short_description: "在项目分析、流程梳理和架构设计中，只先澄清主图类型，再选择合适的 Mermaid 图型并输出分析、图代码和说明。"
-  default_prompt: "使用 $mermaid-analysis-visualizer 进行分析驱动的 Mermaid 可视化。先判断是否值得可视化；如果主图类型仍不明确，只在流程图、技术架构图、平台分层图、分层能力结构图之间做轻量澄清，再选择最合适的图型和最小充分图集，输出简短分析、Mermaid 代码、图解说明，并在必要时给出补图建议。图内重点由你自行补足，不要再追问主流程、服务协作、职责边界等表达细节。"
-
-policy:
-  allow_implicit_invocation: true
