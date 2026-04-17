@@ -1,85 +1,108 @@
 # 分析维度与标准出图
 
-> 文档职责：定义项目分析场景下的标准图名、所属维度、采用标准和一句话用途，并作为本目录的唯一入口。  
+> 文档职责：定义项目分析场景下的标准图名、所属维度、建模标准、Mermaid 常见写法和一句话用途，并作为本目录的唯一入口。  
 > 适用场景：为任意项目快速决定“该画哪些图”时使用。  
 > 阅读目标：先确定分析维度，再用唯一图名定位标准图种，最后进入对应图文档。  
 > 目标读者：需要维护项目分析方法和出图标准的人。
 
 ## 1. 目录标准
 
-本目录只维护两类内容：
+本目录维护三类内容：
 
-- 一张总表：说明 `维度 / 图名 / 标准 / 一行解释`
+- 一张总表：说明 `图名 / 维度 / 建模标准 / Mermaid 常见写法 / 一行说明`
 - 对应图文档：每个文档只负责一种图
+- 一张 Mermaid 样式风格速查：按 Mermaid 类型集中维护可复用样式规则
 
 ## 2. 命名原则
 
 - 图名是唯一索引，不用同义词并列做主名称
 - 只有总表里的 `图名` 一栏保留 `中文名（English Name）` 形式
-- `标准` 一栏优先写正式标准名；如果没有正式标准，则写通用业界名称
-- 旧图名只作为历史别名，不再作为主命名继续维护
+- `建模标准` 决定“这张图表达什么”，`Mermaid 常见写法` 决定“这张图怎么落地”
+- `建模标准` 一栏优先写正式标准名；如果没有正式标准，则写通用业界名称
 
 ## 3. 标准图总表
 
-### 3.1 核心图
+项目分析不应把所有图杂糅在一起，而应按理解顺序逐层展开。
 
-| 维度 | 图名 | 标准 | 一行解释 |
-|------|------|------|---------|
-| 认知维度 | 目录结构图（Directory Structure Diagram） | Tree View / Annotated Tree | 使用文本树展示源码、文档或资源目录层级，并标注关键模块职责。 |
-| 认知维度 | 技术栈图（Tech Stack Diagram） | Tech Stack Diagram | 按前端、后端、数据层、基础设施、运维工具等维度分类展示技术组件。 |
-| 上下文维度 | 系统上下文图（System Context Diagram） | C4 Model Level 1 | 展示系统与用户、外部系统和业务环境之间的关系。 |
-| 结构维度 | 整体架构图（High-Level Architecture Diagram） | C4 Model Level 2 | 展示系统边界、核心子系统、外部依赖及主要交互协议。 |
-| 能力维度 | 分层能力结构图（Layered Capability Map） | Layered Capability Map | 按用户层、应用层、服务层、数据层、基础平台层组织关键能力。 |
-| 动态维度 | 核心业务链路图（Key Business Flow Diagram） | UML Sequence / Business Flow | 选取一个典型端到端业务场景，展示关键节点、数据流向和异常分支。 |
-| 数据维度 | 数据模型图（Data Model Diagram） | Data Model / ERD | 展示核心实体、表关系和关键引用字段。 |
-| 部署维度 | 部署图（Deployment Diagram） | C4 Deployment | 展示运行环境、节点区域、网络入口和部署边界。 |
+### 3.1 首轮全貌
 
-### 3.2 按需补充图
+这一阶段的目标是：从 0 到 1 建立项目整体认知，优先回答“项目是什么、由什么组成、主链路怎么走”。
 
-| 维度 | 图名 | 标准 | 一行解释 |
-|------|------|------|---------|
-| 结构维度 | 核心组件图（Component Diagram） | C4 Model Level 3 | 深潜某个核心容器内部的组件划分与协作关系。 |
-| 代码维度 | 代码图（Code Diagram） | C4 Model Level 4 / UML Class | 深潜某个核心组件内部的代码结构、接口层次和实现关系。 |
-| 结构维度 | 模块依赖图（Module Dependency Diagram） | Module Dependency Diagram | 展示模块依赖方向、公共模块边界和循环依赖风险。 |
-| 动态维度 | 状态机图（State Machine Diagram） | UML State Machine | 展示核心实体或异步任务的状态迁移和触发条件。 |
-| 规划维度 | 甘特图（Gantt Chart） | Gantt | 展示项目分阶段排期、任务依赖和并行关系。 |
-| 演进维度 | 时间线图（Timeline Diagram） | Timeline | 展示技术、产品或架构在时间轴上的演进节点。 |
+| 顺序 | 图名 | 维度 | 建模标准 | Mermaid 常见写法 | 一行说明 |
+|------|------|------|----------|------------------|---------|
+| 1 | 目录结构图（Directory Structure Diagram） | 认知维度 | Tree View / Annotated Tree | 不使用 Mermaid，使用文本树 | 使用文本树展示源码、文档或资源目录层级，并标注关键模块职责。 |
+| 2 | 技术栈图（Tech Stack Diagram） | 认知维度 | Tech Stack Diagram | `mindmap` / `flowchart` | 按技术域分类展示前端、后端、数据存储、中间件、治理和基础设施等技术组件。 |
+| 3 | 系统上下文图（System Context Diagram） | 上下文维度 | C4 Model Level 1 | `flowchart` | 展示系统与用户、外部系统和业务环境之间的关系。 |
+| 4 | 整体架构图（High-Level Architecture Diagram） | 结构维度 | C4 Model Level 2 | `flowchart` | 展示系统边界、核心子系统、外部依赖及主要交互协议。 |
+| 5 | 接口地图（Interface Map / API Surface Map） | 接口维度 | Interface Map / API Surface Map | `flowchart` | 展示系统对外提供的 API、CLI、事件入口或 webhook 接口面。 |
+| 6 | 核心业务链路图（Key Business Flow Diagram） | 动态维度 | UML Sequence / Flow Diagram | `sequenceDiagram` / `flowchart` | 选取一个典型端到端业务场景，展示关键节点、数据流向和异常分支。 |
 
-## 4. 旧图名归并关系
+### 3.2 二轮深挖
 
-为了保证“图名 = 唯一索引”，旧图名统一按下面方式归并：
+这一阶段的目标是：在已经建立全貌后，继续深入结构、数据、状态和部署等局部问题。
 
-- `架构图`、`系统架构图`、`系统容器图` 统一归到 `整体架构图`
-- `核心业务链图`、`端到端流程图` 统一归到 `核心业务链路图`
-- `思维导图`、`技术栈与模块地图` 在项目分析场景下优先归到 `技术栈图`
-- `部署架构图` 统一归到 `部署图`
-- `项目上下文图` 统一归到 `系统上下文图`
-- `数据模型关系图` 统一归到 `数据模型图`
+| 顺序 | 图名 | 维度 | 建模标准 | Mermaid 常见写法 | 一行说明 |
+|------|------|------|----------|------------------|---------|
+| 1 | 分层能力结构图（Layered Capability Map） | 能力维度 | Layered Capability Map | `flowchart` | 按用户层、应用层、服务层、数据层、基础平台层组织关键能力。 |
+| 2 | 核心组件图（Component Diagram） | 结构维度 | C4 Model Level 3 | `flowchart` | 深潜某个核心容器内部的组件划分与协作关系。 |
+| 3 | 数据模型图（Data Model Diagram） | 数据维度 | Data Model / ERD | `flowchart` / `erDiagram` | 展示核心实体、表关系和关键引用字段。 |
+| 4 | 模块依赖图（Module Dependency Diagram） | 结构维度 | Module Dependency Diagram | `flowchart` | 展示模块依赖方向、公共模块边界和循环依赖风险。 |
+| 5 | 状态机图（State Machine Diagram） | 动态维度 | UML State Machine | `stateDiagram-v2` | 展示核心实体或异步任务的状态迁移和触发条件。 |
+| 6 | 部署图（Deployment Diagram） | 部署维度 | C4 Deployment | `flowchart` | 展示运行环境、节点区域、网络入口和部署边界。 |
+| 7 | 构建与发布流程图（Build & Release Flow Diagram） | 工程维度 | Build & Release Flow Diagram | `flowchart` | 展示本地构建、测试、打包、发布和部署的工程执行流程。 |
 
-## 5. 当前目录图文档
+### 3.3 三轮补充
 
-- [目录结构图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/目录结构图.md)
-- [分层能力结构图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/分层能力结构图.md)
-- [系统上下文图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/系统上下文图.md)
-- [整体架构图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/整体架构图.md)
-- [核心组件图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/核心组件图.md)
-- [代码图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/代码图.md)
-- [模块依赖图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/模块依赖图.md)
-- [状态机图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/状态机图.md)
-- [核心业务链路图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/核心业务链路图.md)
-- [部署图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/部署图.md)
-- [数据模型图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/数据模型图.md)
-- [技术栈图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/技术栈图.md)
-- [甘特图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/甘特图.md)
-- [时间线图](/Users/admin/Downloads/Code/AI-Engineering-Knowledge-Base/7.提示词与AI协作/分析维度与标准出图/时间线图.md)
+这一阶段的目标是：补充代码、规划和演进类信息，用于专项分析，而不是默认主线。
+
+| 顺序 | 图名 | 维度 | 建模标准 | Mermaid 常见写法 | 一行说明 |
+|------|------|------|----------|------------------|---------|
+| 1 | 代码图（Code Diagram） | 代码维度 | C4 Model Level 4 / UML Class | `flowchart` / `classDiagram` | 深潜某个核心组件内部的代码结构、接口层次和实现关系。 |
+| 2 | 甘特图（Gantt Chart） | 规划维度 | Gantt | `gantt` | 展示项目分阶段排期、任务依赖和并行关系。 |
+| 3 | 时间线图（Timeline Diagram） | 演进维度 | Timeline | `timeline` | 展示技术、产品或架构在时间轴上的演进节点。 |
+
+## 4. 当前目录图文档
+
+- [Mermaid 样式风格速查](./Mermaid样式风格速查.md)
+- [目录结构图](./目录结构图.md)
+- [分层能力结构图](./分层能力结构图.md)
+- [系统上下文图](./系统上下文图.md)
+- [整体架构图](./整体架构图.md)
+- [接口地图](./接口地图.md)
+- [核心组件图](./核心组件图.md)
+- [代码图](./代码图.md)
+- [模块依赖图](./模块依赖图.md)
+- [状态机图](./状态机图.md)
+- [核心业务链路图](./核心业务链路图.md)
+- [部署图](./部署图.md)
+- [数据模型图](./数据模型图.md)
+- [技术栈图](./技术栈图.md)
+- [构建与发布流程图](./构建与发布流程图.md)
+- [甘特图](./甘特图.md)
+- [时间线图](./时间线图.md)
+
+## 5. 图文档维护规范
+
+- 不再拆维度子文档
+- 文档名直接与图名对齐
+- 每个图文档只负责一种图名，不混入别的图种
+- 单文档统一维护结构：`标准定位`、`这张图回答什么问题`、`最小出图要求`、`节点表达规则`、`参考图`、`使用边界`
+- `标准定位` 统一只保留两项：`上位标准`、`Mermaid 常见写法`
+- `节点表达规则` 统一作为约束层编写，只回答“应写 / 不应写 / 禁止混入”，不围绕某一张参考图写图注
+- 如果一个图名存在多种标准表达或多种 Mermaid 写法，可以在同一文档下维护 `参考图 1 / 参考图 2 / ...`
+- 多张参考图时，标题要直接写出差异来源，例如标准差异或写法差异
+- `参考图` 统一作为高质量样本维护，优先选择经典场景，不再保留过弱的演示型示例
+- 对高频核心图，推荐补充 `最佳实践速查`，沉淀分组方式、配色语义、虚线规则、note 使用和图面控制等可复用经验
+- Mermaid 示例默认只保留最小可读样式；跨图复用的完整样式体系统一维护在 `Mermaid样式风格速查.md`
+- 颜色、边框、子图层装饰不属于标准本身，优先保证语义正确和结构清晰
+- 如确需补充样式，优先复用 `Mermaid样式风格速查.md`；当前图文档只保留与该图强相关的局部规则
+- 不使用过重的 `themeVariables`、大段 `classDef` 或复杂装饰性样式作为标准的一部分
+- 允许参考 Mermaid 规范中的轻样式思路：`subgraph + layerStyle`、业务节点分类配色、`note` / `noteStyle` 提示块
+- `note` 不是必备元素，只在整体架构图、核心业务链路图、状态机图等高信息密度图中按需保留
+- 说明能在图文解释部分说清楚时，优先放在正文，不强行占用图面
+- `sequenceDiagram`、`stateDiagram-v2` 如需补充关键提示，优先使用原生 `Note` / `note` 语法
+- 如果后续新增图种，先更新总表，再新增对应图文档
 
 ## 6. 当前状态
 
 当前总表中的图种都已经有对应文档。
-
-## 7. 维护规则
-
-- 不再拆维度子文档
-- 文档名直接与图名对齐
-- 每个图文档只负责一种图，不混入别的图种
-- 如果后续新增图种，先更新总表，再新增对应图文档
