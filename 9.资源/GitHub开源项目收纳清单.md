@@ -57,6 +57,7 @@
 | prompts.chat | https://github.com/f/prompts.chat | 大规模 Prompt 素材库 | 检索和对比不同 Prompt 写法 | 素材质量、分类方式、检索效率 | P2 | 待看 | 来源文档、GitHub README |
 | SWE-bench | https://github.com/swe-bench/swe-bench | 真实代码仓库问题修复评测基准 | 评估软件工程 Agent 与代码修复能力 | 是否适合作为工程能力评测入口 | P1 | 待看 | 来源文档、GitHub README |
 | SWE-agent | https://github.com/SWE-agent/SWE-agent | 面向代码修复的软件工程 Agent | 研究 Agent 工具调用与自动修复流程 | 参考其任务执行链路与工程实现 | P1 | 待看 | 来源文档、GitHub README |
+| evolver | https://github.com/EvoMap/evolver | 面向 AI Agent 的自进化引擎 | 研究 Agent 自进化、记忆日志分析与可审计演化流程 | GEP 协议、离线可用性、与宿主运行时的集成方式 | P1 | 待看 | GitHub README、官方文档 |
 
 ## 4. 重点关注区
 
