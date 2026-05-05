@@ -72,9 +72,24 @@ claude --model opus
 
 ## 5. 项目记忆：CLAUDE.md
 
-`CLAUDE.md` 是项目级的持久指令文件，放在项目根目录，Claude Code 每次启动时自动读取。
+`CLAUDE.md` 是项目级的持久指令文件，Claude Code 每次启动时自动读取。
 
 适合写入：项目背景、技术栈、编码规范、不要碰的文件等。
+
+### 5.1 文件位置与加载规则
+
+两种位置都对 Claude CLI 生效，但优先级和用途不同：
+
+| 位置 | 说明 | 适用场景 |
+|------|------|---------|
+| **项目根目录 `CLAUDE.md`**（推荐）| Claude CLI 会自动加载项目根目录的 `CLAUDE.md` | 放入 git，团队共享 |
+| **`.claude/CLAUDE.md`** | Claude CLI 同样支持这个位置 | 本地个人配置 |
+
+**两个文件都存在时，都会加载，不互斥。**
+
+如果想让项目规范进入 git 且对团队可见，建议放根目录 `CLAUDE.md`；如果只是本地个人配置，放 `.claude/CLAUDE.md` 并在 `.gitignore` 中排除也完全可以。
+
+### 5.2 常用操作
 
 ```bash
 # 生成初始 CLAUDE.md（交互模式内）

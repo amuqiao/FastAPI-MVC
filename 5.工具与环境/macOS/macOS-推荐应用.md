@@ -58,6 +58,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Bartender](https://www.macwk.com/soft/bartender-4) | 付费 | 专门管理和折叠菜单栏图标。 | 菜单栏管理 | 图标太多时整理菜单栏 | 🌟🌟🌟🌟🌟 |  | 老牌方案 |
 | [Hidden Bar](https://apps.apple.com/es/app/hidden-bar/id1452453066) | 免费 | 轻量隐藏菜单栏图标的小工具。 | 轻量隐藏 | 只想隐藏少量图标 | 🌟🌟🌟🌟 |  | 适合轻需求 |
+| [LunarBar](https://github.com/LunarBar-app/LunarBar) | 开源 | 用来在菜单栏显示农历日历和公共假日。 | 农历日历 | 需要查看农历和公共假日 | 🌟🌟🌟🌟 |  | 沙盒应用；支持自动更新；可用 `brew install --cask lunarbar` |
 
 ### 窗口预览
 
